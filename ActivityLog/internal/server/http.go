@@ -8,36 +8,26 @@ import (
 )
 
 type httpServer struct {
-	Log *Log
+	Activities *Activities
 }
 
-func newHTTPServer() *httpServer {
-	return &httpServer{
-		Log: NewLog(),
-	}
-}
-
-type ProduceRequest struct {
+type RecordDocument struct {
 	Record Record `json:"record"`
 }
 
-type ProduceResponse struct {
-	Offset uint64 `json:"offset"`
+type IdDocument struct {
+	Id uint64 `json:"id"`
 }
 
-func (s *httpServer) handleProduce(w http.ResponseWriter, r *http.Request) {
-	var req ProduceRequest
+func (s *httpServer) handleInsert(w http.ResponseWriter, r *http.Request) {
+	var req RecordDocument
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	off, err := s.Log.Append(req.Record)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	res := ProduceResponse{Offset: off}
+	id := s.Activities.Insert(req.Record)
+	res := IdDocument{Id: id}
 	err = json.NewEncoder(w).Encode(res)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -45,23 +35,15 @@ func (s *httpServer) handleProduce(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type ConsumeRequest struct {
-	Offset uint64 `json:"offset"`
-}
-
-type ConsumeResponse struct {
-	Record Record `json:"record"`
-}
-
-func (s *httpServer) handleConsume(w http.ResponseWriter, r *http.Request) {
-	var req ConsumeRequest
+func (s *httpServer) handleGetById(w http.ResponseWriter, r *http.Request) {
+	var req IdDocument
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	record, err := s.Log.Read(req.Offset)
-	if err == ErrOffsetNotFound {
+	record, err := s.Activities.Retrieve(req.Id)
+	if err == ErrIdNotFound {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -69,7 +51,7 @@ func (s *httpServer) handleConsume(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	res := ConsumeResponse{Record: record}
+	res := RecordDocument{Record: record}
 	err = json.NewEncoder(w).Encode(res)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -78,10 +60,12 @@ func (s *httpServer) handleConsume(w http.ResponseWriter, r *http.Request) {
 }
 
 func NewHTTPServer(addr string) *http.Server {
-	httpsrv := newHTTPServer()
+	server := &httpServer{
+		Activities: &Activities{},
+	}
 	r := mux.NewRouter()
-	r.HandleFunc("/", httpsrv.handleProduce).Methods("POST")
-	r.HandleFunc("/", httpsrv.handleConsume).Methods("GET")
+	r.HandleFunc("/", server.handleInsert).Methods("POST")
+	r.HandleFunc("/", server.handleGetById).Methods("GET")
 	return &http.Server{
 		Addr:    addr,
 		Handler: r,

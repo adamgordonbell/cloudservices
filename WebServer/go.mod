@@ -1,4 +1,4 @@
-module github.com/adamgordonbell/proglog
+module github.com/adamgordonbell/cloudservices
 
 go 1.15
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 set -e
-set -x
+# set -x
 
 echo "=== Test GET ==="
 

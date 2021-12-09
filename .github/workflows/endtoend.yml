@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: earthly/actions/setup-earthly@v1
       - uses: actions/checkout@v2
-      - name: Configure Earthly to use mirror (Earthly Only)
+      - name: Run End to End tests
         run:  earthly -P +test-all 
 
      

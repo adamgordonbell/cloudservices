@@ -11,8 +11,8 @@ type httpServer struct {
 	Activities *Activities
 }
 
-type RecordDocument struct {
-	Record Record `json:"record"`
+type ActivityDocument struct {
+	Activity Activity `json:"activity"`
 }
 
 type IdDocument struct {
@@ -20,13 +20,13 @@ type IdDocument struct {
 }
 
 func (s *httpServer) handleInsert(w http.ResponseWriter, r *http.Request) {
-	var req RecordDocument
+	var req ActivityDocument
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	id := s.Activities.Insert(req.Record)
+	id := s.Activities.Insert(req.Activity)
 	res := IdDocument{Id: id}
 	err = json.NewEncoder(w).Encode(res)
 	if err != nil {
@@ -42,7 +42,7 @@ func (s *httpServer) handleGetById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	record, err := s.Activities.Retrieve(req.Id)
+	activity, err := s.Activities.Retrieve(req.Id)
 	if err == ErrIdNotFound {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -51,7 +51,7 @@ func (s *httpServer) handleGetById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	res := RecordDocument{Record: record}
+	res := ActivityDocument{Activity: activity}
 	err = json.NewEncoder(w).Encode(res)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

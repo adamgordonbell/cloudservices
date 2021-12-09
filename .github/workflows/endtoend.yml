@@ -14,6 +14,6 @@ jobs:
       - uses: earthly/actions/setup-earthly@v1
       - uses: actions/checkout@v2
       - name: Configure Earthly to use mirror (Earthly Only)
-        run:  earthly +test-all 
+        run:  earthly -P +test-all 
 
      

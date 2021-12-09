@@ -8,7 +8,7 @@ import (
 
 type Activity struct {
 	Time        time.Time `json:"time"`
-	Description []byte    `json:"description"`
+	Description string    `json:"description"`
 	Id          uint64    `json:"id"`
 }
 

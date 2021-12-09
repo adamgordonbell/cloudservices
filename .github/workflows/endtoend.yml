@@ -8,12 +8,19 @@ on:
 
 jobs:
 
-  build:
+  WebServer:
     runs-on: ubuntu-latest
     steps:
       - uses: earthly/actions/setup-earthly@v1
       - uses: actions/checkout@v2
       - name: Run End to End tests
-        run:  earthly -P +test-all 
+        run:  earthly -P ./WebServer+test
+  ActivityLog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: earthly/actions/setup-earthly@v1
+      - uses: actions/checkout@v2
+      - name: Run End to End tests
+        run:  earthly -P ./ActivityLog+test
 
      

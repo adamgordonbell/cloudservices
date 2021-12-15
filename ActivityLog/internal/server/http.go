@@ -15,8 +15,8 @@ type ActivityDocument struct {
 	Activity Activity `json:"activity"`
 }
 
-type IdDocument struct {
-	Id uint64 `json:"id"`
+type IDDocument struct {
+	ID uint64 `json:"id"`
 }
 
 func (s *httpServer) handleInsert(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +27,7 @@ func (s *httpServer) handleInsert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := s.Activities.Insert(req.Activity)
-	res := IdDocument{Id: id}
+	res := IDDocument{ID: id}
 	err = json.NewEncoder(w).Encode(res)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -35,15 +35,15 @@ func (s *httpServer) handleInsert(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *httpServer) handleGetById(w http.ResponseWriter, r *http.Request) {
-	var req IdDocument
+func (s *httpServer) handleGetByID(w http.ResponseWriter, r *http.Request) {
+	var req IDDocument
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	activity, err := s.Activities.Retrieve(req.Id)
-	if err == ErrIdNotFound {
+	activity, err := s.Activities.Retrieve(req.ID)
+	if err == ErrIDNotFound {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -65,7 +65,7 @@ func NewHTTPServer(addr string) *http.Server {
 	}
 	r := mux.NewRouter()
 	r.HandleFunc("/", server.handleInsert).Methods("POST")
-	r.HandleFunc("/", server.handleGetById).Methods("GET")
+	r.HandleFunc("/", server.handleGetByID).Methods("GET")
 	return &http.Server{
 		Addr:    addr,
 		Handler: r,

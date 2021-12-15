@@ -1,7 +1,7 @@
 package server
 
 import (
-	"fmt"
+	"errors"
 	"sync"
 	"time"
 )
@@ -9,7 +9,7 @@ import (
 type Activity struct {
 	Time        time.Time `json:"time"`
 	Description string    `json:"description"`
-	Id          uint64    `json:"id"`
+	ID          uint64    `json:"id"`
 }
 
 type Activities struct {
@@ -20,18 +20,18 @@ type Activities struct {
 func (c *Activities) Insert(activity Activity) uint64 {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	activity.Id = uint64(len(c.activities))
+	activity.ID = uint64(len(c.activities))
 	c.activities = append(c.activities, activity)
-	return activity.Id
+	return activity.ID
 }
 
-var ErrIdNotFound = fmt.Errorf("Id not found")
+var ErrIDNotFound = errors.New("Id not found")
 
 func (c *Activities) Retrieve(id uint64) (Activity, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if id >= uint64(len(c.activities)) {
-		return Activity{}, ErrIdNotFound
+		return Activity{}, ErrIDNotFound
 	}
 	return c.activities[id], nil
 }

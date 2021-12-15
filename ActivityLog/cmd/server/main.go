@@ -1,11 +1,13 @@
 package main
 
 import (
+	"log"
+
 	"github.com/adamgordonbell/cloudservices/activitylog/internal/server"
 )
 
 func main() {
-	println("Starting on http://localhost:8080")
+	log.Println("Starting listening on port 8080")
 	srv := server.NewHTTPServer(":8080")
-	srv.ListenAndServe()
+	log.Fatal(srv.ListenAndServe())
 }

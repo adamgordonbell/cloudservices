@@ -15,12 +15,8 @@ curl -X POST -s localhost:8080 -d \
 
 echo "=== Test Descriptions ==="
 
-curl -X GET -s localhost:8080 -d '{"id": 0}' | rg -q 'christmas eve bike class'
-curl -X GET -s localhost:8080 -d '{"id": 1}' | rg -q 'cross country skiing'
-curl -X GET -s localhost:8080 -d '{"id": 2}' | rg -q 'sledding'
-
-echo "=== Test Other Fields ==="
-curl -X GET -s localhost:8080 -d '{"id": 0}' | rg -q '2021-12-09T16:34:04Z'
-curl -X GET -s localhost:8080 -d '{"id": 1}' | rg -q '"id":1'
+curl -X GET -s localhost:8080 -d '{"id": 0}' | grep -q 'christmas eve bike class'
+curl -X GET -s localhost:8080 -d '{"id": 1}' | grep -q 'cross country skiing'
+curl -X GET -s localhost:8080 -d '{"id": 2}' | grep -q 'sledding'
 
 echo "Success"

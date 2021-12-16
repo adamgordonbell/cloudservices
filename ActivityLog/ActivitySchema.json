@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "activity": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "time": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "description",
+          "time"
+        ]
+      }
+    },
+    "required": [
+      "activity"
+    ]
+  }

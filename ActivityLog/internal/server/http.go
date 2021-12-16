@@ -1,10 +1,13 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/xeipuuv/gojsonschema"
 )
 
 type httpServer struct {
@@ -21,7 +24,15 @@ type IDDocument struct {
 
 func (s *httpServer) handleInsert(w http.ResponseWriter, r *http.Request) {
 	var req ActivityDocument
-	err := json.NewDecoder(r.Body).Decode(&req)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(r.Body)
+	newStr := buf.String()
+	valid := validateJSON(newStr)
+	if !valid.Valid() {
+		http.Error(w, valid.Errors()[0].Description(), http.StatusBadRequest)
+		return
+	}
+	err := json.NewDecoder(strings.NewReader(newStr)).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -33,6 +44,16 @@ func (s *httpServer) handleInsert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func validateJSON(s string) gojsonschema.Result {
+	schemaLoader := gojsonschema.NewReferenceLoader("file:///Users/adam/sandbox/cloudservices/ActivityLog/ActivitySchema.json")
+	result, err := gojsonschema.Validate(schemaLoader, gojsonschema.NewStringLoader(s))
+	if err != nil {
+		println("error!")
+		panic(err.Error())
+	}
+	return *result
 }
 
 func (s *httpServer) handleGetByID(w http.ResponseWriter, r *http.Request) {

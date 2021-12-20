@@ -19,6 +19,7 @@ test-deps:
 
 test:
     FROM +test-deps
+    COPY +build/activityclient ./activityclient
     COPY test.sh .
     WITH DOCKER --load agbell/cloudservices/activityserver=github.com/adamgordonbell/cloudservices/ActivityLog+docker
         RUN  docker run -d -p 8080:8080 agbell/cloudservices/activityserver && \

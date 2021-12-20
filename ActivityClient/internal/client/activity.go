@@ -28,7 +28,6 @@ type Activities struct {
 }
 
 func (c *Activities) Insert(activity Activity) (int, error) {
-	var document IDDocument
 	activityDoc := ActivityDocument{Activity: activity}
 	bytes, err := json.Marshal(activityDoc)
 	if err != nil {
@@ -49,6 +48,7 @@ func (c *Activities) Insert(activity Activity) (int, error) {
 	if err != nil {
 		return -1, err
 	}
+	var document IDDocument
 	err = json.Unmarshal(body, &document)
 	if err != nil {
 		return -1, err

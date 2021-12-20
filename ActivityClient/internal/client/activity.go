@@ -34,7 +34,7 @@ func (c *Activities) Insert(activity Activity) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	req, err := http.NewRequest(http.MethodGet, c.URL, strings.NewReader(string(bytes)))
+	req, err := http.NewRequest(http.MethodPost, c.URL, strings.NewReader(string(bytes)))
 	if err != nil {
 		return -1, err
 	}
@@ -72,6 +72,9 @@ func (c *Activities) Retrieve(id int) (Activity, error) {
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return document.Activity, err
+	}
+	if res.StatusCode == 404 {
+		return document.Activity, errors.New("Not Found")
 	}
 	if res.Body != nil {
 		defer res.Body.Close()

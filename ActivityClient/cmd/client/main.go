@@ -10,13 +10,15 @@ import (
 	"github.com/adamgordonbell/cloudservices/activityclient/internal/client"
 )
 
+const defaultURL = "http://localhost:8080/"
+
 func main() {
 	add := flag.Bool("add", false, "Add activity")
 	get := flag.Bool("get", false, "Get activity")
 
 	flag.Parse()
 
-	activitiesClient := &client.Activities{}
+	activitiesClient := &client.Activities{URL: defaultURL}
 
 	switch {
 	case *get:

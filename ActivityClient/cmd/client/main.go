@@ -20,15 +20,15 @@ func main() {
 
 	switch {
 	case *get:
-		ID, err := strconv.Atoi(os.Args[1])
+		id, err := strconv.Atoi(os.Args[1])
 		if err != nil {
 			println("Invalid Offset: Not an integer")
 			os.Exit(1)
 		}
-		fmt.Printf("Getting %d", ID)
-		a, err1 := activitiesClient.Retrieve(ID)
-		if err1 != nil {
-			println("Error:", err1)
+		fmt.Printf("Getting %d", id)
+		a, err := activitiesClient.Retrieve(id)
+		if err != nil {
+			println("Error:", err)
 			os.Exit(1)
 		}
 		fmt.Printf("%+v\n", a)
@@ -38,12 +38,12 @@ func main() {
 			os.Exit(1)
 		}
 		a := client.Activity{Time: time.Now(), Description: os.Args[2]}
-		if id, err := activitiesClient.Insert(a); err != nil {
+		id, err := activitiesClient.Insert(a)
+		if err != nil {
 			println("Error:", err)
 			os.Exit(1)
 		}
 		fmt.Printf("Added: %+v as %d\n", a, id)
-
 	default:
 		flag.Usage()
 		os.Exit(1)

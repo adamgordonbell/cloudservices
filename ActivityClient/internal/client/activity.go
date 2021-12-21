@@ -1,12 +1,12 @@
 package client
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -35,11 +35,11 @@ type Activities struct {
 
 func (c *Activities) Insert(activity Activity) (int, error) {
 	activityDoc := ActivityDocument{Activity: activity}
-	bytes, err := json.Marshal(activityDoc)
+	jsBytes, err := json.Marshal(activityDoc)
 	if err != nil {
 		return -1, err
 	}
-	req, err := http.NewRequest(http.MethodPost, c.URL, strings.NewReader(string(bytes)))
+	req, err := http.NewRequest(http.MethodPost, c.URL, bytes.NewReader(jsBytes))
 	if err != nil {
 		return -1, err
 	}
@@ -67,11 +67,11 @@ var ErrIDNotFound = errors.New("Id not found")
 func (c *Activities) Retrieve(id int) (Activity, error) {
 	var document ActivityDocument
 	idDoc := IDDocument{ID: id}
-	bytes, err := json.Marshal(idDoc)
+	jsBytes, err := json.Marshal(idDoc)
 	if err != nil {
 		return document.Activity, err
 	}
-	req, err := http.NewRequest(http.MethodGet, c.URL, strings.NewReader(string(bytes)))
+	req, err := http.NewRequest(http.MethodGet, c.URL, bytes.NewReader(jsBytes))
 	if err != nil {
 		return document.Activity, err
 	}

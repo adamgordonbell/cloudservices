@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -13,6 +14,11 @@ type Activity struct {
 	Time        time.Time `json:"time"`
 	Description string    `json:"description"`
 	ID          int       `json:"id"`
+}
+
+func (a Activity) String() string {
+	return fmt.Sprintf("ID:%d\t\"%s\"\t%d-%d-%d",
+		a.ID, a.Description, a.Time.Year(), a.Time.Month(), a.Time.Day())
 }
 
 type ActivityDocument struct {

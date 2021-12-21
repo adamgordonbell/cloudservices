@@ -32,7 +32,7 @@ func main() {
 			println("Error:", err.Error())
 			os.Exit(1)
 		}
-		fmt.Printf("%+v\n", a)
+		fmt.Println(a.String())
 	case *add:
 		if len(os.Args) != 3 {
 			println(`Usage: --add "message"`)
@@ -44,7 +44,7 @@ func main() {
 			println("Error:", err.Error())
 			os.Exit(1)
 		}
-		fmt.Printf("Added: %+v as %d\n", a, id)
+		fmt.Printf("Added: %s as %d\n", a.String(), id)
 	default:
 		flag.Usage()
 		os.Exit(1)

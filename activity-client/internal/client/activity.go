@@ -7,34 +7,15 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	server "github.com/adamgordonbell/cloudservices/activity-log/internal/server"
+	api "github.com/adamgordonbell/cloudservices/activity-log"
 )
-
-// type Activity struct {
-// 	Time        time.Time `json:"time"`
-// 	Description string    `json:"description"`
-// 	ID          int       `json:"id"`
-// }
-
-// func (a Activity) String() string {
-// 	return fmt.Sprintf("ID:%d\t\"%s\"\t%d-%d-%d",
-// 		a.ID, a.Description, a.Time.Year(), a.Time.Month(), a.Time.Day())
-// }
-
-// type ActivityDocument struct {
-// 	Activity Activity `json:"activity"`
-// }
-
-// type IDDocument struct {
-// 	ID int `json:"id"`
-// }
 
 type Activities struct {
 	URL string
 }
 
-func (c *Activities) Insert(activity server.Activity) (int, error) {
-	activityDoc := server.ActivityDocument{server.Activity: activity}
+func (c *Activities) Insert(activity api.Activity) (int, error) {
+	activityDoc := api.ActivityDocument{api.Activity: activity}
 	jsBytes, err := json.Marshal(activityDoc)
 	if err != nil {
 		return -1, err
@@ -54,7 +35,7 @@ func (c *Activities) Insert(activity server.Activity) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	var document server.IDDocument
+	var document api.IDDocument
 	err = json.Unmarshal(body, &document)
 	if err != nil {
 		return -1, err
@@ -64,9 +45,9 @@ func (c *Activities) Insert(activity server.Activity) (int, error) {
 
 var ErrIDNotFound = errors.New("Id not found")
 
-func (c *Activities) Retrieve(id int) (server.Activity, error) {
-	var document server.ActivityDocument
-	idDoc := server.IDDocument{ID: id}
+func (c *Activities) Retrieve(id int) (api.Activity, error) {
+	var document api.ActivityDocument
+	idDoc := api.IDDocument{ID: id}
 	jsBytes, err := json.Marshal(idDoc)
 	if err != nil {
 		return document.Activity, err

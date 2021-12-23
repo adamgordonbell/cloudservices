@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/adamgordonbell/cloudservices/activity-client/internal/client"
-	"github.com/adamgordonbell/cloudservices/activity-log/internal/server"
+	api "github.com/adamgordonbell/cloudservices/activity-log"
 )
 
 const defaultURL = "http://localhost:8080/"
@@ -39,15 +39,20 @@ func main() {
 			fmt.Fprintln(os.Stderr, `Usage: --add "message"`)
 			os.Exit(1)
 		}
-		a := server.Activity{Time: time.Now(), Description: os.Args[2]}
+		a := api.Activity{Time: time.Now(), Description: os.Args[2]}
 		id, err := activitiesClient.Insert(a)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error:", err.Error())
 			os.Exit(1)
 		}
-		fmt.Printf("Added: %s as %d\n", a.String(), id)
+		fmt.Printf("Added: %s as %d\n", asString(a), id)
 	default:
 		flag.Usage()
 		os.Exit(1)
 	}
+}
+
+func asString(a api.Activity) string {
+	return fmt.Sprintf("ID:%d\t\"%s\"\t%d-%d-%d",
+		a.ID, a.Description, a.Time.Year(), a.Time.Month(), a.Time.Day())
 }

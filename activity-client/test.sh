@@ -6,5 +6,5 @@ echo "=== Add Records ==="
 ./activityclient --add "20 minute walk"
 
 echo "=== Retrieve Records ==="
-./activityclient --get 0 | grep "overhead press"
-./activityclient --get 1 | grep "20 minute walk"
+./activityclient --get 1 | grep "overhead press"
+./activityclient --get 2 | grep "20 minute walk"

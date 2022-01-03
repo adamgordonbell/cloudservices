@@ -5,7 +5,7 @@ import "time"
 type Activity struct {
 	Time        time.Time `json:"time"`
 	Description string    `json:"description"`
-	ID          uint64    `json:"id"`
+	ID          int       `json:"id"`
 }
 
 type ActivityDocument struct {
@@ -13,5 +13,5 @@ type ActivityDocument struct {
 }
 
 type IDDocument struct {
-	ID uint64 `json:"id"`
+	ID int `json:"id"`
 }

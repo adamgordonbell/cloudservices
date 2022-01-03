@@ -15,7 +15,7 @@ type Activities struct {
 }
 
 func (c *Activities) Insert(activity api.Activity) (int, error) {
-	activityDoc := api.ActivityDocument{api.Activity: activity}
+	activityDoc := api.ActivityDocument{Activity: activity}
 	jsBytes, err := json.Marshal(activityDoc)
 	if err != nil {
 		return -1, err

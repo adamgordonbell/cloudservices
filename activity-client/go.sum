@@ -1,15 +1,8 @@
-github.com/adamgordonbell/cloudservices v0.0.0-20211223202240-b62edf7a44ba h1:LIndDD/yxsSqSZNiFTso9gsumtHZIy6g+vnR7JLMsLA=
-github.com/adamgordonbell/cloudservices v0.0.0-20211223202240-b62edf7a44ba/go.mod h1:E0bvYq2NEosvDaIRNjPLS1+7NBPs4PJQU5MDuZXgurA=
-github.com/adamgordonbell/cloudservices/activity-log v0.0.0-20211223202240-b62edf7a44ba h1:6ay81YPdX/SHtpOxMyIaYa9Ws4N/+eGTaA2va1nslJk=
-github.com/adamgordonbell/cloudservices/activity-log v0.0.0-20211223202240-b62edf7a44ba/go.mod h1:RrPjI6SkaElNH7kKFWkLfOQMd4JJ/7nNAn1nilXVQLI=
 github.com/adamgordonbell/cloudservices/activity-log v0.0.0-20220103205721-59b1630cbc78 h1:4flqOhDCMA7ve4bIMQnIVGfjPhBzmvSM2/MXuUKdF/Y=
 github.com/adamgordonbell/cloudservices/activity-log v0.0.0-20220103205721-59b1630cbc78/go.mod h1:RrPjI6SkaElNH7kKFWkLfOQMd4JJ/7nNAn1nilXVQLI=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/gorilla/mux v1.7.3 h1:gnP5JzjVOuiZD07fKKToCAOjS0yOpj/qPETTXCCS6hw=
 github.com/gorilla/mux v1.7.3/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/sirupsen/logrus v1.8.1 h1:dJKuHgqk1NNQlqoA6BTlM1Wf9DOH3NBjQyu0h9+AZZE=
 github.com/sirupsen/logrus v1.8.1/go.mod h1:yWOB1SBYBC5VeMP7gHvWumXLIWorT60ONWic61uBYv0=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
-golang.org/x/sys v0.0.0-20191026070338-33540a1f6037 h1:YyJpGZS1sBuBCzLAR1VEpK193GlqGZbnPFnPV/5Rsb4=
 golang.org/x/sys v0.0.0-20191026070338-33540a1f6037/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=

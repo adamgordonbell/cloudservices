@@ -14,14 +14,14 @@ jobs:
       - uses: earthly/actions/setup-earthly@v1
       - uses: actions/checkout@v2
       - name: Run End to End WebServer tests
-        run:  earthly -P ./WebServer+test
+        run:  earthly -P ./web-server+test
   ActivityLog:
     runs-on: ubuntu-latest
     steps:
       - uses: earthly/actions/setup-earthly@v1
       - uses: actions/checkout@v2
       - name: Run End to End ActivityLog tests
-        run:  earthly -P ./ActivityLog+test
+        run:  earthly -P ./activity-log+test
   ActivityClient:
     runs-on: ubuntu-latest
     steps:

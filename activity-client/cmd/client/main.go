@@ -33,7 +33,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, "Error:", err.Error())
 			os.Exit(1)
 		}
-		fmt.Println(a.String())
+		fmt.Println(asString(a))
 	case *add:
 		if len(os.Args) != 3 {
 			fmt.Fprintln(os.Stderr, `Usage: --add "message"`)

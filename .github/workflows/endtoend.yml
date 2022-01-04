@@ -29,5 +29,4 @@ jobs:
       - uses: actions/checkout@v2
       - name: Run End to End ActivityClient tests
         run:  earthly -P +ac-test
-
      

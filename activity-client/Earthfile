@@ -1,9 +1,12 @@
 VERSION 0.6
 FROM golang:1.15-alpine3.13
-WORKDIR /activityclient
+WORKDIR /activity-client
+
+RUN apk add moreutils
 
 deps:
     COPY go.mod ./
+    RUN sed '$d' go.mod | sponge go.mod
     RUN go mod download
     SAVE ARTIFACT go.mod AS LOCAL go.mod
 

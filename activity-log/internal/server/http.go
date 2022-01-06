@@ -19,7 +19,7 @@ func (s *httpServer) handleInsert(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	id := s.Activities.Insert(req.Activity)
+	id, err := s.Activities.Insert(req.Activity)
 	res := api.IDDocument{ID: id}
 	err = json.NewEncoder(w).Encode(res)
 	if err != nil {

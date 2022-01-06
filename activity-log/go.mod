@@ -4,5 +4,6 @@ go 1.15
 
 require (
 	github.com/gorilla/mux v1.7.3
+	github.com/mattn/go-sqlite3 v1.14.10 
 	github.com/sirupsen/logrus v1.8.1
 )

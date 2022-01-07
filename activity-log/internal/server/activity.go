@@ -3,17 +3,18 @@ package server
 import (
 	"database/sql"
 	"errors"
+	"log"
 	"sync"
 
 	api "github.com/adamgordonbell/cloudservices/activity-log"
+	// need to get sqlite working
 	_ "github.com/mattn/go-sqlite3"
-	log "github.com/sirupsen/logrus"
 )
 
 const create string = `
-		CREATE TABLE [activities] (
+		CREATE TABLE IF NOT EXISTS activities (
 		id INTEGER NOT NULL PRIMARY KEY,
-		time TEXT,
+		time DATETIME NOT NULL,
 		description TEXT
 		);
 `
@@ -40,8 +41,7 @@ func NewActivities() (*Activities, error) {
 func (c *Activities) Insert(activity api.Activity) (int, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-
-	//do we need a prepare or just db.Exec works?
+	// do we need a prepare or just db.Exec works?
 	insStmt, err := c.db.Prepare("INSERT INTO activities VALUES(NULL,?,?);")
 	if err != nil {
 		return 0, err
@@ -58,7 +58,7 @@ func (c *Activities) Insert(activity api.Activity) (int, error) {
 		return 0, err
 	}
 
-	log.Printf("Added %v as %s", activity, id)
+	log.Printf("Added %v as %d", activity, id)
 	return int(id), nil
 }
 
@@ -66,18 +66,38 @@ var ErrIDNotFound = errors.New("Id not found")
 
 func (c *Activities) Retrieve(id int) (api.Activity, error) {
 	log.Printf("Getting %d", id)
-	c.mu.Lock()
-	defer c.mu.Unlock()
 
 	// Query DB row based on ID
-	row := c.db.QueryRow("SELECT * FROM interval WHERE id=?", id)
+	row := c.db.QueryRow("SELECT * FROM activities WHERE id=?", id)
 
 	// Parse row into Interval struct
 	activity := api.Activity{}
 	var err error
-	if err := row.Scan(&activity.ID, &activity.Time, &activity.Description); err == sql.ErrNoRows {
+	if err = row.Scan(&activity.ID, &activity.Time, &activity.Description); err == sql.ErrNoRows {
 		log.Printf("Id not found")
 		return api.Activity{}, ErrIDNotFound
 	}
 	return activity, err
+}
+
+func (c *Activities) List(offset int) ([]api.Activity, error) {
+	log.Printf("Getting list from offset %d\n", offset)
+
+	// Query DB row based on ID
+	rows, err := c.db.Query("SELECT * FROM activities WHERE ID > ? ORDER BY id DESC LIMIT 100", offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	data := []api.Activity{}
+	for rows.Next() {
+		i := api.Activity{}
+		err = rows.Scan(&i.ID, &i.Time, &i.Description)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, i)
+	}
+	return data, nil
 }

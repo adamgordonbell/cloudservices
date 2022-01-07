@@ -2,6 +2,8 @@ VERSION 0.6
 FROM golang:1.15-alpine3.13
 WORKDIR /activityserver
 
+RUN apk add build-base
+
 deps:
     COPY go.mod go.sum ./
     RUN go mod download
@@ -22,7 +24,7 @@ docker:
 
 test-deps:
     FROM earthly/dind
-    RUN apk add curl ripgrep
+    RUN apk add curl jq
 
 test:
     FROM +test-deps

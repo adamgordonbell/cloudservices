@@ -19,4 +19,9 @@ curl -X GET -s localhost:8080 -d '{"id": 1}' | grep -q 'christmas eve bike class
 curl -X GET -s localhost:8080 -d '{"id": 2}' | grep -q 'cross country skiing'
 curl -X GET -s localhost:8080 -d '{"id": 3}' | grep -q 'sledding'
 
+echo "=== Test List ==="
+
+curl -X GET -s localhost:8080/list | jq length |  grep -q '3'
+curl -X GET -s localhost:8080/list -d '{"offset": 3}' | jq length |  grep -q '0'
+
 echo "Success"

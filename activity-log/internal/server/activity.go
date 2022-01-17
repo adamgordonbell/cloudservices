@@ -37,18 +37,8 @@ func NewActivities() (*Activities, error) {
 		db: db,
 	}, nil
 }
-
 func (c *Activities) Insert(activity api.Activity) (int, error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	// do we need a prepare or just db.Exec works?
-	insStmt, err := c.db.Prepare("INSERT INTO activities VALUES(NULL,?,?);")
-	if err != nil {
-		return 0, err
-	}
-	defer insStmt.Close()
-
-	res, err := insStmt.Exec(activity.Time, activity.Description)
+	res, err := c.db.Exec("INSERT INTO activities VALUES(NULL,?,?);", activity.Time, activity.Description)
 	if err != nil {
 		return 0, err
 	}
@@ -57,7 +47,6 @@ func (c *Activities) Insert(activity api.Activity) (int, error) {
 	if id, err = res.LastInsertId(); err != nil {
 		return 0, err
 	}
-
 	log.Printf("Added %v as %d", activity, id)
 	return int(id), nil
 }

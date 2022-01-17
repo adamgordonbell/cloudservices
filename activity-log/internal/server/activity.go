@@ -57,9 +57,9 @@ func (c *Activities) Retrieve(id int) (api.Activity, error) {
 	log.Printf("Getting %d", id)
 
 	// Query DB row based on ID
-	row := c.db.QueryRow("SELECT * FROM activities WHERE id=?", id)
+	row := c.db.QueryRow("SELECT id, time, description FROM activities WHERE id=?", id)
 
-	// Parse row into Interval struct
+	// Parse row into Activity struct
 	activity := api.Activity{}
 	var err error
 	if err = row.Scan(&activity.ID, &activity.Time, &activity.Description); err == sql.ErrNoRows {

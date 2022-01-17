@@ -56,17 +56,12 @@ var ErrIDNotFound = errors.New("Id not found")
 func (c *Activities) Retrieve(id int) (api.Activity, error) {
 	log.Printf("Getting %d", id)
 
-	var err error
 	// Query DB row based on ID
-	c.db.QueryRow()
-	row, err := c.db.Query("SELECT * FROM activities WHERE id=?", id)
-	if err != nil {
-		return nil, err
-	}
-	if row
+	row := c.db.QueryRow("SELECT * FROM activities WHERE id=?", id)
 
 	// Parse row into Interval struct
 	activity := api.Activity{}
+	var err error
 	if err = row.Scan(&activity.ID, &activity.Time, &activity.Description); err == sql.ErrNoRows {
 		log.Printf("Id not found")
 		return api.Activity{}, ErrIDNotFound

@@ -6,7 +6,6 @@ import (
 	"log"
 
 	api "github.com/adamgordonbell/cloudservices/activity-log"
-	// need to get sqlite working
 	_ "github.com/mattn/go-sqlite3"
 )
 

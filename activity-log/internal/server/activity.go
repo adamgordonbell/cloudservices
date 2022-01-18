@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"log"
-	"sync"
 
 	api "github.com/adamgordonbell/cloudservices/activity-log"
 	// need to get sqlite working
@@ -22,7 +21,6 @@ const file string = "activities.db"
 
 type Activities struct {
 	db *sql.DB
-	mu sync.Mutex
 }
 
 func NewActivities() (*Activities, error) {
@@ -59,7 +57,7 @@ func (c *Activities) Retrieve(id int) (api.Activity, error) {
 	// Query DB row based on ID
 	row := c.db.QueryRow("SELECT id, time, description FROM activities WHERE id=?", id)
 
-	// Parse row into Activity struct
+	// Parse row into Interval struct
 	activity := api.Activity{}
 	var err error
 	if err = row.Scan(&activity.ID, &activity.Time, &activity.Description); err == sql.ErrNoRows {

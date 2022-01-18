@@ -16,6 +16,7 @@ const defaultURL = "http://localhost:8080/"
 func main() {
 	add := flag.Bool("add", false, "Add activity")
 	get := flag.Bool("get", false, "Get activity")
+	list := flag.Bool("list", false, "List activities")
 
 	flag.Parse()
 
@@ -46,6 +47,18 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Printf("Added: %s as %d\n", asString(a), id)
+	case *list:
+		as, err := activitiesClient.List(0)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error:", err.Error())
+			os.Exit(1)
+		}
+		var output string
+		for _, a := range as {
+			output += asString(a) + "\n"
+		}
+		fmt.Println(output)
+
 	default:
 		flag.Usage()
 		os.Exit(1)

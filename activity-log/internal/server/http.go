@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -64,7 +63,6 @@ func (s *httpServer) handleList(w http.ResponseWriter, r *http.Request) {
 	var query api.ActivityQueryDocument
 	var err error
 	if r.Body != http.NoBody {
-		fmt.Println("Have Body")
 		err = json.NewDecoder(r.Body).Decode(&query)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)

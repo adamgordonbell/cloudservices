@@ -31,7 +31,7 @@ ac-test:
     FROM +ac-test-deps
     COPY +ac-build/activityclient ./activityclient
     COPY activity-client/test.sh .
-    WITH DOCKER --load agbell/cloudservices/activityserver=github.com/adamgordonbell/cloudservices/activity-log+docker
+    WITH DOCKER --load agbell/cloudservices/activityserver=./activity-log+docker
         RUN  docker run -d -p 8080:8080 agbell/cloudservices/activityserver && \
                 ./test.sh
     END

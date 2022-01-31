@@ -1,18 +1,33 @@
 package server
 
 import (
+	"context"
 	"log"
 
-	api1 "github.com/adamgordonbell/cloudservices/activity-log/api/v1"
+	api "github.com/adamgordonbell/cloudservices/activity-log/api/v1"
+
 	"google.golang.org/grpc"
 )
 
+// var _ api1.Activity = (*grpcServer)(nil)
+
 type grpcServer struct {
-	api1.UnimplementedActivity_LogServer
+	api.UnimplementedActivity_LogServer
 	Activities *Activities
 }
 
-// var _ api1.Activity = (*grpcServer)(nil)
+func (s *grpcServer) Retrieve(ctx context.Context, req *api.RetrieveRequest) (*api.Activity, error) {
+	resp, err := s.Activities.Retrieve(int(req.Id))
+	return nil, nil
+}
+
+func (s *grpcServer) Insert(ctx context.Context, activity *api.Activity) (*api.Activity, error) {
+	return nil, nil
+}
+
+func (s *grpcServer) List(ctx context.Context, req *api.ListRequest) (*api.Activities, error) {
+	return nil, nil
+}
 
 func NewGRPCServer() *grpc.Server {
 	var acc *Activities
@@ -24,6 +39,6 @@ func NewGRPCServer() *grpc.Server {
 	srv := grpcServer{
 		Activities: acc,
 	}
-	api1.RegisterActivity_LogServer(gsrv, srv)
+	api.RegisterActivity_LogServer(gsrv, &srv)
 	return gsrv
 }

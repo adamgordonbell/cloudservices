@@ -2,8 +2,7 @@ VERSION 0.6
 FROM golang:1.17-alpine3.13
 
 test-all:
-    BUILD ./WebServer+test
-    BUILD ./ActivityLog+test
+    BUILD ./activity-log+test
     BUILD +ac-test
 
 ### Activity Client

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+INIT_LOCATION="$0"
+
+
+## External
+
+list(){ # This list you are seeing now
+    ./util/list.awk "$INIT_LOCATION"
+}
+
+unset-functions(){ # Unset all these functions
+    script=$(./util/unset.awk "$INIT_LOCATION")
+    eval "$script"
+}

@@ -6,6 +6,24 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/adamgordonbell/cloudservices/activity-log/api_v1";
 
+service Activity_Log {
+    rpc Insert(Activity) returns (Activity) {}
+    rpc Retrieve(RetrieveRequest) returns (Activity) {}
+    rpc List(ListRequest) returns (Activities) {}
+}
+
+message RetrieveRequest {
+    int32 id = 1;
+}
+
+message InsertResponse {
+    int32 id = 1;
+}
+
+message ListRequest {
+    int32 offset = 1;
+}
+
 message Activity {
     int32 id = 1;
     google.protobuf.Timestamp time = 2;

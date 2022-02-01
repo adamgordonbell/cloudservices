@@ -2,7 +2,10 @@ package server
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"log"
+	"net/http"
 
 	api "github.com/adamgordonbell/cloudservices/activity-log/api/v1"
 
@@ -18,10 +21,27 @@ type grpcServer struct {
 
 func (s *grpcServer) Retrieve(ctx context.Context, req *api.RetrieveRequest) (*api.Activity, error) {
 	resp, err := s.Activities.Retrieve(int(req.Id))
-	return nil, nil
+	if err == ErrIDNotFound {
+		return nil, errors.New("not found")
+	}
+	if err != nil {
+		return nil, errors.New("Internal Error")
+	}
+	return &resp, nil
 }
 
 func (s *grpcServer) Insert(ctx context.Context, activity *api.Activity) (*api.Activity, error) {
+	id, err := s.Activities.Insert(*activity)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	res := api.IDDocument{ID: id}
+	err = json.NewEncoder(w).Encode(res)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	return nil, nil
 }
 

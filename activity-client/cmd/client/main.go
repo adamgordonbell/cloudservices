@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/adamgordonbell/cloudservices/activity-client/internal/client"
-	api "github.com/adamgordonbell/cloudservices/activity-log"
+	api "github.com/adamgordonbell/cloudservices/activity-log/api/v1"
 )
 
 const defaultURL = "http://localhost:8080/"

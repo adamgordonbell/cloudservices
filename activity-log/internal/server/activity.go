@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	api "github.com/adamgordonbell/cloudservices/activity-log"
+	api "github.com/adamgordonbell/cloudservices/activity-log/api/v1"
 
 	// needed for SQLite driver
 	_ "github.com/mattn/go-sqlite3"
@@ -61,7 +61,7 @@ func (c *Activities) Retrieve(id int) (api.Activity, error) {
 	// Parse row into Interval struct
 	activity := api.Activity{}
 	var err error
-	if err = row.Scan(&activity.ID, &activity.Time, &activity.Description); err == sql.ErrNoRows {
+	if err = row.Scan(&activity.Id, &activity.Time, &activity.Description); err == sql.ErrNoRows {
 		log.Printf("Id not found")
 		return api.Activity{}, ErrIDNotFound
 	}
@@ -81,7 +81,7 @@ func (c *Activities) List(offset int) ([]api.Activity, error) {
 	data := []api.Activity{}
 	for rows.Next() {
 		i := api.Activity{}
-		err = rows.Scan(&i.ID, &i.Time, &i.Description)
+		err = rows.Scan(&i.Id, &i.Time, &i.Description)
 		if err != nil {
 			return nil, err
 		}

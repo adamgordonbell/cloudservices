@@ -23,9 +23,14 @@ docker:
     EXPOSE 8080
     SAVE IMAGE --push agbell/cloudservices/activityserver
 
+grpcurl:
+    FROM fullstorydev/grpcurl:latest
+    SAVE ARTIFACT /bin/grpcurl ./grpcurl
+
 test-deps:
     FROM earthly/dind
     RUN apk add curl jq
+    COPY +grpcurl/grpcurl /bin/grpcurl
 
 test:
     FROM +test-deps

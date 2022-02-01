@@ -17,7 +17,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type Activity_LogClient interface {
-	Insert(ctx context.Context, in *Activity, opts ...grpc.CallOption) (*Activity, error)
+	Insert(ctx context.Context, in *Activity, opts ...grpc.CallOption) (*InsertResponse, error)
 	Retrieve(ctx context.Context, in *RetrieveRequest, opts ...grpc.CallOption) (*Activity, error)
 	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*Activities, error)
 }
@@ -30,8 +30,8 @@ func NewActivity_LogClient(cc grpc.ClientConnInterface) Activity_LogClient {
 	return &activity_LogClient{cc}
 }
 
-func (c *activity_LogClient) Insert(ctx context.Context, in *Activity, opts ...grpc.CallOption) (*Activity, error) {
-	out := new(Activity)
+func (c *activity_LogClient) Insert(ctx context.Context, in *Activity, opts ...grpc.CallOption) (*InsertResponse, error) {
+	out := new(InsertResponse)
 	err := c.cc.Invoke(ctx, "/api.v1.Activity_Log/Insert", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (c *activity_LogClient) List(ctx context.Context, in *ListRequest, opts ...
 // All implementations must embed UnimplementedActivity_LogServer
 // for forward compatibility
 type Activity_LogServer interface {
-	Insert(context.Context, *Activity) (*Activity, error)
+	Insert(context.Context, *Activity) (*InsertResponse, error)
 	Retrieve(context.Context, *RetrieveRequest) (*Activity, error)
 	List(context.Context, *ListRequest) (*Activities, error)
 	mustEmbedUnimplementedActivity_LogServer()
@@ -71,7 +71,7 @@ type Activity_LogServer interface {
 type UnimplementedActivity_LogServer struct {
 }
 
-func (UnimplementedActivity_LogServer) Insert(context.Context, *Activity) (*Activity, error) {
+func (UnimplementedActivity_LogServer) Insert(context.Context, *Activity) (*InsertResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Insert not implemented")
 }
 func (UnimplementedActivity_LogServer) Retrieve(context.Context, *RetrieveRequest) (*Activity, error) {

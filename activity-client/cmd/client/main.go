@@ -9,9 +9,10 @@ import (
 
 	"github.com/adamgordonbell/cloudservices/activity-client/internal/client"
 	api "github.com/adamgordonbell/cloudservices/activity-log/api/v1"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-const defaultURL = "http://localhost:8080/"
+const defaultURL = "localhost:8080"
 
 func main() {
 	add := flag.Bool("add", false, "Add activity")
@@ -20,7 +21,9 @@ func main() {
 
 	flag.Parse()
 
-	activitiesClient := &client.Activities{URL: defaultURL}
+	activitiesClient := client.NewActivities(defaultURL)
+	defer activitiesClient.Cancel()
+	// defer activitiesClient.client
 
 	switch {
 	case *get:
@@ -40,7 +43,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, `Usage: --add "message"`)
 			os.Exit(1)
 		}
-		a := api.Activity{Time: time.Now(), Description: os.Args[2]}
+		a := api.Activity{Time: timestamppb.New(time.Now()), Description: os.Args[2]}
 		id, err := activitiesClient.Insert(a)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error:", err.Error())
@@ -55,7 +58,7 @@ func main() {
 		}
 		var output string
 		for _, a := range as {
-			output += asString(a) + "\n"
+			output += asString(*a) + "\n"
 		}
 		fmt.Println(output)
 
@@ -67,5 +70,5 @@ func main() {
 
 func asString(a api.Activity) string {
 	return fmt.Sprintf("ID:%d\t\"%s\"\t%d-%d-%d",
-		a.ID, a.Description, a.Time.Year(), a.Time.Month(), a.Time.Day())
+		a.Id, a.Description, a.Time.AsTime().Year(), a.Time.AsTime().Month(), a.Time.AsTime().Day())
 }

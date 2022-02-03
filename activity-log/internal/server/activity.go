@@ -38,7 +38,7 @@ func NewActivities() (*Activities, error) {
 		db: db,
 	}, nil
 }
-func (c *Activities) Insert(activity api.Activity) (int, error) {
+func (c *Activities) Insert(activity *api.Activity) (int, error) {
 	res, err := c.db.Exec("INSERT INTO activities VALUES(NULL,?,?);", activity.Time.AsTime(), activity.Description)
 	if err != nil {
 		return 0, err
@@ -54,7 +54,7 @@ func (c *Activities) Insert(activity api.Activity) (int, error) {
 
 var ErrIDNotFound = errors.New("Id not found")
 
-func (c *Activities) Retrieve(id int) (api.Activity, error) {
+func (c *Activities) Retrieve(id int) (*api.Activity, error) {
 	log.Printf("Getting %d", id)
 
 	// Query DB row based on ID
@@ -66,10 +66,10 @@ func (c *Activities) Retrieve(id int) (api.Activity, error) {
 	var time time.Time
 	if err = row.Scan(&activity.Id, &time, &activity.Description); err == sql.ErrNoRows {
 		log.Printf("Id not found")
-		return api.Activity{}, ErrIDNotFound
+		return &api.Activity{}, ErrIDNotFound
 	}
 	activity.Time = timestamppb.New(time)
-	return activity, err
+	return &activity, err
 }
 
 func (c *Activities) List(offset int) ([]*api.Activity, error) {

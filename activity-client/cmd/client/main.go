@@ -44,12 +44,12 @@ func main() {
 			os.Exit(1)
 		}
 		a := api.Activity{Time: timestamppb.New(time.Now()), Description: os.Args[2]}
-		id, err := activitiesClient.Insert(a)
+		id, err := activitiesClient.Insert(&a)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error:", err.Error())
 			os.Exit(1)
 		}
-		fmt.Printf("Added: %s as %d\n", asString(a), id)
+		fmt.Printf("Added: %s as %d\n", asString(&a), id)
 	case *list:
 		as, err := activitiesClient.List(0)
 		if err != nil {
@@ -58,7 +58,7 @@ func main() {
 		}
 		var output string
 		for _, a := range as {
-			output += asString(*a) + "\n"
+			output += asString(a) + "\n"
 		}
 		fmt.Println(output)
 
@@ -68,7 +68,7 @@ func main() {
 	}
 }
 
-func asString(a api.Activity) string {
+func asString(a *api.Activity) string {
 	return fmt.Sprintf("ID:%d\t\"%s\"\t%d-%d-%d",
 		a.Id, a.Description, a.Time.AsTime().Year(), a.Time.AsTime().Month(), a.Time.AsTime().Day())
 }

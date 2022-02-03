@@ -9,6 +9,8 @@ import (
 	api "github.com/adamgordonbell/cloudservices/activity-log/api/v1"
 
 	"google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
 // var _ api1.Activity = (*grpcServer)(nil)
@@ -21,19 +23,19 @@ type grpcServer struct {
 func (s *grpcServer) Retrieve(ctx context.Context, req *api.RetrieveRequest) (*api.Activity, error) {
 	resp, err := s.Activities.Retrieve(int(req.Id))
 	if err == ErrIDNotFound {
-		return nil, fmt.Errorf("%d not found", req.Id)
+		return nil, status.Error(codes.NotFound, "id was not found")
 	}
 	if err != nil {
-		return nil, fmt.Errorf("Internal Error: %w", err)
+		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &resp, nil
+	return resp, nil
 }
 
 func (s *grpcServer) Insert(ctx context.Context, activity *api.Activity) (*api.InsertResponse, error) {
-	id, err := s.Activities.Insert(*activity)
+	id, err := s.Activities.Insert(activity)
 	if err != nil {
 		log.Printf("Error:%s", err.Error())
-		return nil, fmt.Errorf("Internal Error: %w", err)
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	res := api.InsertResponse{Id: int32(id)}
 	return &res, nil
@@ -65,12 +67,4 @@ type Activity struct {
 	Time        time.Time
 	Description string
 	ID          int
-}
-
-func convert(a api.Activity) Activity {
-	return Activity{
-		ID:          int(a.Id),
-		Description: a.Description,
-		Time:        a.Time.AsTime(),
-	}
 }

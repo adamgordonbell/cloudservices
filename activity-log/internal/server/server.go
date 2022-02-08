@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -44,7 +43,7 @@ func (s *grpcServer) Insert(ctx context.Context, activity *api.Activity) (*api.I
 func (s *grpcServer) List(ctx context.Context, req *api.ListRequest) (*api.Activities, error) {
 	activities, err := s.Activities.List(int(req.Offset))
 	if err != nil {
-		return nil, fmt.Errorf("Internal Error: %w", err)
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &api.Activities{Activities: activities}, nil
 }

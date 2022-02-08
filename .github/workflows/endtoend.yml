@@ -20,5 +20,5 @@ jobs:
       - uses: earthly/actions/setup-earthly@v1
       - uses: actions/checkout@v2
       - name: Run End to End ActivityClient tests
-        run:  earthly -fdfP +ac-test
+        run:  earthly -P +ac-test
      

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -22,8 +23,8 @@ func main() {
 	flag.Parse()
 
 	activitiesClient := client.NewActivities(defaultURL)
-	defer activitiesClient.Cancel()
-	// defer activitiesClient.client
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
 
 	switch {
 	case *get:
@@ -32,7 +33,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, "Invalid Offset: Not an integer")
 			os.Exit(1)
 		}
-		a, err := activitiesClient.Retrieve(id)
+		a, err := activitiesClient.Retrieve(ctx, id)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error:", err.Error())
 			os.Exit(1)
@@ -44,14 +45,14 @@ func main() {
 			os.Exit(1)
 		}
 		a := api.Activity{Time: timestamppb.New(time.Now()), Description: os.Args[2]}
-		id, err := activitiesClient.Insert(&a)
+		id, err := activitiesClient.Insert(ctx, &a)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error:", err.Error())
 			os.Exit(1)
 		}
 		fmt.Printf("Added: %s as %d\n", asString(&a), id)
 	case *list:
-		as, err := activitiesClient.List(0)
+		as, err := activitiesClient.List(ctx, 0)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error:", err.Error())
 			os.Exit(1)

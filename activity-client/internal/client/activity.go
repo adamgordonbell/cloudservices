@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"time"
 
 	api "github.com/adamgordonbell/cloudservices/activity-log/api/v1"
 	"google.golang.org/grpc"
@@ -15,9 +14,7 @@ import (
 )
 
 type Activities struct {
-	ctx    context.Context
 	client api.Activity_LogClient
-	Cancel context.CancelFunc
 }
 
 func NewActivities(URL string) Activities {
@@ -26,12 +23,11 @@ func NewActivities(URL string) Activities {
 		log.Fatalf("did not connect: %v", err)
 	}
 	client := api.NewActivity_LogClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	return Activities{ctx: ctx, client: client, Cancel: cancel}
+	return Activities{client: client}
 }
 
-func (c *Activities) Insert(activity *api.Activity) (int, error) {
-	resp, err := c.client.Insert(c.ctx, activity)
+func (c *Activities) Insert(ctx context.Context, activity *api.Activity) (int, error) {
+	resp, err := c.client.Insert(ctx, activity)
 	if err != nil {
 		return 0, fmt.Errorf("Insert failure: %w", err)
 	}
@@ -40,23 +36,21 @@ func (c *Activities) Insert(activity *api.Activity) (int, error) {
 
 var ErrIDNotFound = errors.New("Id not found")
 
-func (c *Activities) Retrieve(id int) (*api.Activity, error) {
-	resp, err := c.client.Retrieve(c.ctx, &api.RetrieveRequest{Id: int32(id)})
+func (c *Activities) Retrieve(ctx context.Context, id int) (*api.Activity, error) {
+	resp, err := c.client.Retrieve(ctx, &api.RetrieveRequest{Id: int32(id)})
 	if err != nil {
-		st, ok := status.FromError(err)
-		if !ok {
-			return &api.Activity{}, fmt.Errorf("Unexpected Insert failure: %w", err)
-		}
+		st, _ := status.FromError(err)
 		if st.Code() == codes.NotFound {
 			return &api.Activity{}, ErrIDNotFound
+		} else {
+			return &api.Activity{}, fmt.Errorf("Unexpected Insert failure: %w", err)
 		}
 	}
 	return resp, nil
-
 }
 
-func (c *Activities) List(offset int) ([]*api.Activity, error) {
-	resp, err := c.client.List(c.ctx, &api.ListRequest{Offset: int32(offset)})
+func (c *Activities) List(ctx context.Context, offset int) ([]*api.Activity, error) {
+	resp, err := c.client.List(ctx, &api.ListRequest{Offset: int32(offset)})
 	if err != nil {
 		return nil, fmt.Errorf("List failure: %w", err)
 	}

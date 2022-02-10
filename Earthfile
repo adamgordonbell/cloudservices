@@ -3,5 +3,5 @@ FROM golang:1.17-alpine3.13
 
 test-all:
     BUILD ./activity-log+test
-    BUILD +ac-test
+    BUILD ./activity-client+test
 

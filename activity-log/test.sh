@@ -2,7 +2,7 @@
 set -e
 # set -x
 
-# echo "=== Test Reflection API ==="
+echo "=== Test Reflection API ==="
 grpcurl -plaintext localhost:8080 describe
 
 echo "=== Insert Test Data ==="

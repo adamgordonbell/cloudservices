@@ -1,0 +1,31 @@
+VERSION 0.6
+FROM golang:1.17-alpine3.13
+
+service:
+   WORKDIR /activity-log
+   COPY ../activity-log+export/activity-log .
+
+deps:
+    FROM +service
+    WORKDIR /activity-client
+    COPY ./go.mod ./
+    RUN go mod download
+
+build:
+    FROM +deps
+    COPY . .
+    RUN go build -o build/activity-client cmd/client/main.go
+    SAVE ARTIFACT build/activity-client /activity-client
+
+test-deps:
+    FROM earthly/dind
+    RUN apk add curl ripgrep
+
+test:
+    FROM +test-deps
+    COPY +build/activity-client ./activity-client
+    COPY test.sh .
+    WITH DOCKER --load agbell/cloudservices/activity-server=../activity-log+docker
+        RUN  docker run -d -p 8080:8080 agbell/cloudservices/activity-server && \
+                ./test.sh
+    END

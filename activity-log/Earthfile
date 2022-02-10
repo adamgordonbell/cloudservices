@@ -1,6 +1,6 @@
 VERSION 0.6
 FROM golang:1.15-alpine3.13
-WORKDIR /activityserver
+WORKDIR /activity-log
 
 RUN apk add build-base
 
@@ -14,14 +14,14 @@ deps:
 build:
     FROM +deps
     COPY . .
-    RUN go build -o build/activityserver cmd/server/main.go
-    SAVE ARTIFACT build/activityserver /activityserver
+    RUN go build -o build/activity-log cmd/server/main.go
+    SAVE ARTIFACT build/activity-log /activity-log 
 
 docker:
-    COPY +build/activityserver .
-    ENTRYPOINT ["/activityserver/activityserver"]
+    COPY +build/activity-log .
+    ENTRYPOINT ["/activity-log/activity-log"]
     EXPOSE 8080
-    SAVE IMAGE --push agbell/cloudservices/activityserver
+    SAVE IMAGE --push agbell/cloudservices/activity-log
 
 grpcurl:
     FROM fullstorydev/grpcurl:latest
@@ -35,7 +35,12 @@ test-deps:
 test:
     FROM +test-deps
     COPY test.sh .
-    WITH DOCKER --load agbell/cloudservices/activityserver=+docker
-        RUN  docker run -d -p 8080:8080 agbell/cloudservices/activityserver && \
+    WITH DOCKER --load agbell/cloudservices/activity-log=+docker
+        RUN  docker run -d -p 8080:8080 agbell/cloudservices/activity-log && \
                 ./test.sh
     END
+
+export:
+    COPY go.mod go.sum ./
+    COPY api ./api
+    SAVE ARTIFACT /activity-log

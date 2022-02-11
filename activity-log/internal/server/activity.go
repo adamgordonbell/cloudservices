@@ -4,8 +4,12 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"time"
 
-	api "github.com/adamgordonbell/cloudservices/activity-log"
+	api "github.com/adamgordonbell/cloudservices/activity-log/api/v1"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
+	// needed for SQLite driver
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -34,8 +38,8 @@ func NewActivities() (*Activities, error) {
 		db: db,
 	}, nil
 }
-func (c *Activities) Insert(activity api.Activity) (int, error) {
-	res, err := c.db.Exec("INSERT INTO activities VALUES(NULL,?,?);", activity.Time, activity.Description)
+func (c *Activities) Insert(activity *api.Activity) (int, error) {
+	res, err := c.db.Exec("INSERT INTO activities VALUES(NULL,?,?);", activity.Time.AsTime(), activity.Description)
 	if err != nil {
 		return 0, err
 	}
@@ -50,7 +54,7 @@ func (c *Activities) Insert(activity api.Activity) (int, error) {
 
 var ErrIDNotFound = errors.New("Id not found")
 
-func (c *Activities) Retrieve(id int) (api.Activity, error) {
+func (c *Activities) Retrieve(id int) (*api.Activity, error) {
 	log.Printf("Getting %d", id)
 
 	// Query DB row based on ID
@@ -59,14 +63,16 @@ func (c *Activities) Retrieve(id int) (api.Activity, error) {
 	// Parse row into Interval struct
 	activity := api.Activity{}
 	var err error
-	if err = row.Scan(&activity.ID, &activity.Time, &activity.Description); err == sql.ErrNoRows {
+	var time time.Time
+	if err = row.Scan(&activity.Id, &time, &activity.Description); err == sql.ErrNoRows {
 		log.Printf("Id not found")
-		return api.Activity{}, ErrIDNotFound
+		return &api.Activity{}, ErrIDNotFound
 	}
-	return activity, err
+	activity.Time = timestamppb.New(time)
+	return &activity, err
 }
 
-func (c *Activities) List(offset int) ([]api.Activity, error) {
+func (c *Activities) List(offset int) ([]*api.Activity, error) {
 	log.Printf("Getting list from offset %d\n", offset)
 
 	// Query DB row based on ID
@@ -76,14 +82,16 @@ func (c *Activities) List(offset int) ([]api.Activity, error) {
 	}
 	defer rows.Close()
 
-	data := []api.Activity{}
+	data := []*api.Activity{}
 	for rows.Next() {
 		i := api.Activity{}
-		err = rows.Scan(&i.ID, &i.Time, &i.Description)
+		var time time.Time
+		err = rows.Scan(&i.Id, &time, &i.Description)
 		if err != nil {
 			return nil, err
 		}
-		data = append(data, i)
+		i.Time = timestamppb.New(time)
+		data = append(data, &i)
 	}
 	return data, nil
 }

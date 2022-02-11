@@ -2,26 +2,28 @@
 set -e
 # set -x
 
+echo "=== Test Reflection API ==="
+grpcurl -plaintext localhost:8080 describe
+
 echo "=== Insert Test Data ==="
 
-curl -X POST -s localhost:8080 -d \
-'{"activity": {"description": "christmas eve bike class", "time":"2021-12-09T16:34:04Z"}}'
+grpcurl -plaintext -d  '{ "description": "christmas eve bike class" }' localhost:8080 api.v1.Activity_Log/Insert
 
-curl -X POST -s localhost:8080 -d \
-'{"activity": {"description": "cross country skiing is horrible and cold", "time":"2021-12-09T16:56:12Z"}}'
+grpcurl -plaintext -d  '{ "description": "cross country skiing is horrible and cold" }' localhost:8080 api.v1.Activity_Log/Insert
 
-curl -X POST -s localhost:8080 -d \
-'{"activity": {"description": "sledding with nephew", "time":"2021-12-09T16:56:23Z"}}'
+grpcurl -plaintext -d  '{ "description": "sledding with nephew" }' localhost:8080 api.v1.Activity_Log/Insert
 
-echo "=== Test Descriptions ==="
+echo "=== Test Retrieve Descriptions ==="
 
-curl -X GET -s localhost:8080 -d '{"id": 1}' | grep -q 'christmas eve bike class'
-curl -X GET -s localhost:8080 -d '{"id": 2}' | grep -q 'cross country skiing'
-curl -X GET -s localhost:8080 -d '{"id": 3}' | grep -q 'sledding'
+grpcurl -plaintext -d '{ "id": 1 }' localhost:8080 api.v1.Activity_Log/Retrieve
+
+grpcurl -plaintext -d '{ "id": 1 }' localhost:8080 api.v1.Activity_Log/Retrieve | grep -q 'christmas eve bike class'
+grpcurl -plaintext -d '{ "id": 2 }' localhost:8080 api.v1.Activity_Log/Retrieve | grep -q 'cross country skiing'
+grpcurl -plaintext -d '{ "id": 3 }' localhost:8080 api.v1.Activity_Log/Retrieve | grep -q 'sledding'
 
 echo "=== Test List ==="
 
-curl -X GET -s localhost:8080/list | jq length |  grep -q '3'
-curl -X GET -s localhost:8080/list -d '{"offset": 3}' | jq length |  grep -q '0'
+grpcurl -plaintext localhost:8080 api.v1.Activity_Log/List | jq '.activities | length' |  grep -q '3'
+grpcurl -plaintext -d '{ "offset": 3 }' localhost:8080 api.v1.Activity_Log/List | jq '.activities | length'|  grep -q '0'
 
 echo "Success"

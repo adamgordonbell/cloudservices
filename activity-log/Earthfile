@@ -1,6 +1,6 @@
 VERSION 0.6
 FROM golang:1.15-alpine3.13
-WORKDIR /activityserver
+WORKDIR /activity-log
 
 RUN apk add build-base
 
@@ -11,26 +11,57 @@ deps:
     SAVE ARTIFACT go.mod AS LOCAL go.mod
     SAVE ARTIFACT go.sum AS LOCAL go.sum
 
+proto-deps:
+    FROM golang:buster
+    RUN apt-get update && apt-get install -y wget unzip
+    RUN wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-linux-x86_64.zip
+    RUN unzip protoc.zip -d /usr/local/
+    RUN go get google.golang.org/protobuf/cmd/protoc-gen-go \
+               google.golang.org/grpc/cmd/protoc-gen-go-grpc
+
+proto:
+    FROM +proto-deps
+    WORKDIR /activity-log
+    COPY go.mod go.sum ./ 
+    COPY api ./api
+    RUN protoc api/v1/*.proto \
+            --go_out=. \
+            --go_opt=paths=source_relative \
+            --go-grpc_out=. \
+            --go-grpc_opt=paths=source_relative \
+            --proto_path=.
+   SAVE ARTIFACT ./api AS LOCAL ./api 
+
 build:
     FROM +deps
     COPY . .
-    RUN go build -o build/activityserver cmd/server/main.go
-    SAVE ARTIFACT build/activityserver /activityserver
+    RUN go build -o build/activity-log cmd/server/main.go
+    SAVE ARTIFACT build/activity-log /activity-log 
 
 docker:
-    COPY +build/activityserver .
-    ENTRYPOINT ["/activityserver/activityserver"]
+    COPY +build/activity-log .
+    ENTRYPOINT ["/activity-log/activity-log"]
     EXPOSE 8080
-    SAVE IMAGE --push agbell/cloudservices/activityserver
+    SAVE IMAGE --push agbell/cloudservices/activity-log
+
+grpcurl:
+    FROM fullstorydev/grpcurl:latest
+    SAVE ARTIFACT /bin/grpcurl ./grpcurl
 
 test-deps:
     FROM earthly/dind
     RUN apk add curl jq
+    COPY +grpcurl/grpcurl /bin/grpcurl
 
 test:
     FROM +test-deps
     COPY test.sh .
-    WITH DOCKER --load agbell/cloudservices/activityserver=+docker
-        RUN  docker run -d -p 8080:8080 agbell/cloudservices/activityserver && \
+    WITH DOCKER --load agbell/cloudservices/activity-log=+docker
+        RUN  docker run -d -p 8080:8080 agbell/cloudservices/activity-log && \
                 ./test.sh
     END
+
+export:
+    COPY go.mod go.sum ./
+    COPY api ./api
+    SAVE ARTIFACT /activity-log

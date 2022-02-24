@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/golang/protobuf v1.5.2
+	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.3
 	github.com/mattn/go-sqlite3 v1.14.10
 	google.golang.org/grpc v1.44.0

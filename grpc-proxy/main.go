@@ -17,7 +17,6 @@ var grpcServerEndpoint = "localhost:8080"
 func main() {
 	log.Println("Starting listening on port 8081")
 	port := ":8081"
-
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	err := api.RegisterActivity_LogHandlerFromEndpoint(context.Background(), mux, grpcServerEndpoint, opts)
@@ -25,5 +24,8 @@ func main() {
 		log.Fatalf("failed to serve: %v", err)
 	}
 
-	http.ListenAndServe(port, mux)
+	err = http.ListenAndServe(port, mux)
+	if err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }

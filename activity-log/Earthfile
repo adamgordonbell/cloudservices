@@ -41,7 +41,18 @@ proto:
             --proto_path=.
    SAVE ARTIFACT ./api AS LOCAL ./api 
 
-
+gen-certs:
+    WORKDIR /activity-log
+    COPY go.mod go.sum ./ 
+    WORKDIR /activity-log/certs
+    COPY certs .
+    RUN go get github.com/cloudflare/cfssl/cmd/cfssl@v1.4.1 \
+              github.com/cloudflare/cfssl/cmd/cfssljson@v1.4.1
+    RUN cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+    RUN cfssl gencert -ca ca.pem -ca-key=ca-key.pem -config ca-config.json \
+                -profile=server server-csr.json | cfssljson -bare server 
+    RUN false
+    SAVE ARTIFACT ./* AS LOCAL ./certs
 
 build:
     FROM +deps

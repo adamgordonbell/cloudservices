@@ -9,7 +9,7 @@ import (
 	api "github.com/adamgordonbell/cloudservices/activity-log/api/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 )
 
@@ -18,7 +18,11 @@ type Activities struct {
 }
 
 func NewActivities(URL string) Activities {
-	conn, err := grpc.Dial(URL, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	tlsCreds, err := credentials.NewClientTLSFromFile("../activity-log/certs/ca.pem", "")
+	if err != nil {
+		log.Fatalf("No cert found: %v", err)
+	}
+	conn, err := grpc.Dial(URL, grpc.WithTransportCredentials(tlsCreds))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

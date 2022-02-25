@@ -1,47 +1,53 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/adamgordonbell/cloudservices/activity-log/internal/server"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	api "github.com/adamgordonbell/cloudservices/activity-log/api/v1"
 )
 
-func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Handler {
+func grpcHandlerFunc(grpcServer grpc.Server, otherHandler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO(tamird): point to merged gRPC code rather than a PR.
 		// This is a partial recreation of gRPC's internal checks https://github.com/grpc/grpc-go/pull/514/files#diff-95e9a25b738459a2d3030e1e6fa2a718R61
-		log.Printf("Got: %s", r)
+		log.Printf("Got: %s", r.Header.Get("Content-Type"))
+		// if r.ProtoMajor == 2 && strings.HasPrefix(
+		// 	r.Header.Get("Content-Type"), "application/grpc") {
+		// log.Println("GRPC")
 		// grpcServer.ServeHTTP(w, r)
-		if false {
-			fmt.Fprintf(w, "get\n")
-		} else if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
-			log.Println("grpcServer")
-			grpcServer.ServeHTTP(w, r)
-		} else {
-			log.Println("REST")
-			otherHandler.ServeHTTP(w, r)
-		}
+		// } else {
+		// 	log.Println("other")
+		otherHandler.ServeHTTP(w, r)
+		// }
 	})
 }
 
 func main() {
 
 	// GRPC Server
-	grpcServer := server.NewGRPCServer()
+	grpcServer, srv := server.NewGRPCServer()
 	// Register reflection service on gRPC server.
 	reflection.Register(grpcServer)
 
 	// Rest Server
-	gwmux := runtime.NewServeMux()
+	// gwmux := runtime.NewServeMux()
+	// var grpcServerEndpoint = "localhost:8080"
+	mux := runtime.NewServeMux()
+	// opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	err := api.RegisterActivity_LogHandlerServer(context.Background(), mux, &srv)
+	if err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 
 	log.Println("Starting listening on port 8080")
-	err := http.ListenAndServe(":8080", grpcHandlerFunc(grpcServer, gwmux))
+	err = http.ListenAndServe(":8080", grpcHandlerFunc(*grpcServer, mux))
 	if err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

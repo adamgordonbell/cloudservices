@@ -37,10 +37,7 @@ func main() {
 	reflection.Register(grpcServer)
 
 	// Rest Server
-	// gwmux := runtime.NewServeMux()
-	// var grpcServerEndpoint = "localhost:8080"
 	mux := runtime.NewServeMux()
-	// opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	err := api.RegisterActivity_LogHandlerServer(context.Background(), mux, &srv)
 	if err != nil {
 		log.Fatalf("failed to serve: %v", err)

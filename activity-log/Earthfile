@@ -61,7 +61,7 @@ build:
 docker:
     COPY +build/activity-log .
     COPY certs/* certs/
-    COPY certs/server.pem certs/server.pem # not sure why this is needed
+    COPY certs/server.pem certs/server.pem #not sure why needed
     ENTRYPOINT ["/activity-log/activity-log"]
     EXPOSE 8080
     SAVE IMAGE agbell/cloudservices/activity-log

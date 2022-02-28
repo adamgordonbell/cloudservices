@@ -86,4 +86,5 @@ test:
 export:
     COPY go.mod go.sum ./
     COPY api ./api
+    COPY certs ./certs
     SAVE ARTIFACT /activity-log

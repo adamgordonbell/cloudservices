@@ -7,7 +7,7 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 
 	api "github.com/adamgordonbell/cloudservices/activity-log/api/v1"
 )
@@ -18,8 +18,12 @@ func main() {
 	log.Println("Starting listening on port 8081")
 	port := ":8081"
 	mux := runtime.NewServeMux()
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	err := api.RegisterActivity_LogHandlerFromEndpoint(context.Background(), mux, grpcServerEndpoint, opts)
+	tlsCreds, err := credentials.NewClientTLSFromFile("../activity-log/certs/ca.pem", "")
+	if err != nil {
+		log.Fatalf("No cert found: %v", err)
+	}
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(tlsCreds)}
+	err = api.RegisterActivity_LogHandlerFromEndpoint(context.Background(), mux, grpcServerEndpoint, opts)
 	if err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

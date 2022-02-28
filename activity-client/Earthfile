@@ -20,9 +20,12 @@ build:
 test-deps:
     FROM earthly/dind
     RUN apk add curl ripgrep
+    WORKDIR /activity-log
+    COPY ../activity-log+export/activity-log .
 
 test:
     FROM +test-deps
+    WORKDIR /activity-client
     COPY +build/activity-client ./activity-client
     COPY test.sh .
     WITH DOCKER --load agbell/cloudservices/activity-server=../activity-log+docker

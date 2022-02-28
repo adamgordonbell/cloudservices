@@ -2,7 +2,8 @@
     "CN": "127.0.0.1",
     "hosts": [
         "localhost",
-        "127.0.0.1"
+        "127.0.0.1",
+        "activity-log"
     ],
     "key": {
         "algo": "rsa",

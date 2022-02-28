@@ -61,9 +61,10 @@ build:
 docker:
     COPY +build/activity-log .
     COPY certs/* certs/
+    COPY certs/server.pem certs/server.pem # not sure why this is needed
     ENTRYPOINT ["/activity-log/activity-log"]
     EXPOSE 8080
-    SAVE IMAGE --push agbell/cloudservices/activity-log
+    SAVE IMAGE agbell/cloudservices/activity-log
 
 grpcurl:
     FROM fullstorydev/grpcurl:latest

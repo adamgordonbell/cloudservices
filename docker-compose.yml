@@ -1,0 +1,10 @@
+version: '3'
+services:
+    activity-log:
+        image: agbell/cloudservices/activity-log
+        ports:
+            - 8080:8080
+    grpc-proxy:
+        image: agbell/cloudservices/grpc-proxy
+        ports:
+            - 8081:8081

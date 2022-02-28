@@ -12,7 +12,7 @@ import (
 	api "github.com/adamgordonbell/cloudservices/activity-log/api/v1"
 )
 
-var grpcServerEndpoint = "localhost:8080"
+var grpcServerEndpoint = "activity-log:8080"
 
 func main() {
 	log.Println("Starting listening on port 8081")

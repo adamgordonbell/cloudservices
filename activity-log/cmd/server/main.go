@@ -21,7 +21,7 @@ func grpcHandlerFunc(grpcServer grpc.Server, otherHandler http.Handler) http.Han
 			log.Println("GRPC")
 			grpcServer.ServeHTTP(w, r)
 		} else {
-			log.Println("other")
+			log.Println("REST")
 			otherHandler.ServeHTTP(w, r)
 		}
 	})

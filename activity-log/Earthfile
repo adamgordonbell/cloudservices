@@ -50,7 +50,7 @@ certs:
     RUN cfssl gencert -initca ca-csr.json | cfssljson -bare ca
     RUN cfssl gencert -ca ca.pem -ca-key=ca-key.pem -config ca-config.json \
                 -profile=server server-csr.json | cfssljson -bare server 
-    SAVE ARTIFACT ./* AS LOCAL certs/
+    SAVE ARTIFACT --keep-ts ./* AS LOCAL certs/
 
 build:
     FROM +deps

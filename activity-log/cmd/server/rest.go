@@ -15,7 +15,6 @@ func main() {
 
 	// GRPC Server
 	_, srv := server.NewGRPCServer()
-	// Register reflection service on gRPC server.
 
 	// Rest Server
 	mux := runtime.NewServeMux()

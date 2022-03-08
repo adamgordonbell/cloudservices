@@ -18,7 +18,7 @@ func main() {
 
 	// Rest Server
 	mux := runtime.NewServeMux()
-	err := api.RegisterActivity_LogHandlerServer(context.Background(), mux, &srv)
+	err := api.RegisterActivityLogServiceHandlerServer(context.Background(), mux, &srv)
 	if err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

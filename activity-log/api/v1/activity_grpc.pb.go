@@ -18,158 +18,158 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// Activity_LogClient is the client API for Activity_Log service.
+// ActivityLogServiceClient is the client API for ActivityLogService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type Activity_LogClient interface {
-	Insert(ctx context.Context, in *Activity, opts ...grpc.CallOption) (*InsertResponse, error)
-	Retrieve(ctx context.Context, in *RetrieveRequest, opts ...grpc.CallOption) (*Activity, error)
-	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*Activities, error)
+type ActivityLogServiceClient interface {
+	Insert(ctx context.Context, in *InsertRequest, opts ...grpc.CallOption) (*InsertResponse, error)
+	Retrieve(ctx context.Context, in *RetrieveRequest, opts ...grpc.CallOption) (*RetrieveResponse, error)
+	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error)
 }
 
-type activity_LogClient struct {
+type activityLogServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewActivity_LogClient(cc grpc.ClientConnInterface) Activity_LogClient {
-	return &activity_LogClient{cc}
+func NewActivityLogServiceClient(cc grpc.ClientConnInterface) ActivityLogServiceClient {
+	return &activityLogServiceClient{cc}
 }
 
-func (c *activity_LogClient) Insert(ctx context.Context, in *Activity, opts ...grpc.CallOption) (*InsertResponse, error) {
+func (c *activityLogServiceClient) Insert(ctx context.Context, in *InsertRequest, opts ...grpc.CallOption) (*InsertResponse, error) {
 	out := new(InsertResponse)
-	err := c.cc.Invoke(ctx, "/api.v1.Activity_Log/Insert", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.v1.ActivityLogService/Insert", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *activity_LogClient) Retrieve(ctx context.Context, in *RetrieveRequest, opts ...grpc.CallOption) (*Activity, error) {
-	out := new(Activity)
-	err := c.cc.Invoke(ctx, "/api.v1.Activity_Log/Retrieve", in, out, opts...)
+func (c *activityLogServiceClient) Retrieve(ctx context.Context, in *RetrieveRequest, opts ...grpc.CallOption) (*RetrieveResponse, error) {
+	out := new(RetrieveResponse)
+	err := c.cc.Invoke(ctx, "/api.v1.ActivityLogService/Retrieve", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *activity_LogClient) List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*Activities, error) {
-	out := new(Activities)
-	err := c.cc.Invoke(ctx, "/api.v1.Activity_Log/List", in, out, opts...)
+func (c *activityLogServiceClient) List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error) {
+	out := new(ListResponse)
+	err := c.cc.Invoke(ctx, "/api.v1.ActivityLogService/List", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// Activity_LogServer is the server API for Activity_Log service.
-// All implementations must embed UnimplementedActivity_LogServer
+// ActivityLogServiceServer is the server API for ActivityLogService service.
+// All implementations must embed UnimplementedActivityLogServiceServer
 // for forward compatibility
-type Activity_LogServer interface {
-	Insert(context.Context, *Activity) (*InsertResponse, error)
-	Retrieve(context.Context, *RetrieveRequest) (*Activity, error)
-	List(context.Context, *ListRequest) (*Activities, error)
-	mustEmbedUnimplementedActivity_LogServer()
+type ActivityLogServiceServer interface {
+	Insert(context.Context, *InsertRequest) (*InsertResponse, error)
+	Retrieve(context.Context, *RetrieveRequest) (*RetrieveResponse, error)
+	List(context.Context, *ListRequest) (*ListResponse, error)
+	mustEmbedUnimplementedActivityLogServiceServer()
 }
 
-// UnimplementedActivity_LogServer must be embedded to have forward compatible implementations.
-type UnimplementedActivity_LogServer struct {
+// UnimplementedActivityLogServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedActivityLogServiceServer struct {
 }
 
-func (UnimplementedActivity_LogServer) Insert(context.Context, *Activity) (*InsertResponse, error) {
+func (UnimplementedActivityLogServiceServer) Insert(context.Context, *InsertRequest) (*InsertResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Insert not implemented")
 }
-func (UnimplementedActivity_LogServer) Retrieve(context.Context, *RetrieveRequest) (*Activity, error) {
+func (UnimplementedActivityLogServiceServer) Retrieve(context.Context, *RetrieveRequest) (*RetrieveResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Retrieve not implemented")
 }
-func (UnimplementedActivity_LogServer) List(context.Context, *ListRequest) (*Activities, error) {
+func (UnimplementedActivityLogServiceServer) List(context.Context, *ListRequest) (*ListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedActivity_LogServer) mustEmbedUnimplementedActivity_LogServer() {}
+func (UnimplementedActivityLogServiceServer) mustEmbedUnimplementedActivityLogServiceServer() {}
 
-// UnsafeActivity_LogServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to Activity_LogServer will
+// UnsafeActivityLogServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ActivityLogServiceServer will
 // result in compilation errors.
-type UnsafeActivity_LogServer interface {
-	mustEmbedUnimplementedActivity_LogServer()
+type UnsafeActivityLogServiceServer interface {
+	mustEmbedUnimplementedActivityLogServiceServer()
 }
 
-func RegisterActivity_LogServer(s grpc.ServiceRegistrar, srv Activity_LogServer) {
-	s.RegisterService(&Activity_Log_ServiceDesc, srv)
+func RegisterActivityLogServiceServer(s grpc.ServiceRegistrar, srv ActivityLogServiceServer) {
+	s.RegisterService(&ActivityLogService_ServiceDesc, srv)
 }
 
-func _Activity_Log_Insert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Activity)
+func _ActivityLogService_Insert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InsertRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(Activity_LogServer).Insert(ctx, in)
+		return srv.(ActivityLogServiceServer).Insert(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.v1.Activity_Log/Insert",
+		FullMethod: "/api.v1.ActivityLogService/Insert",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(Activity_LogServer).Insert(ctx, req.(*Activity))
+		return srv.(ActivityLogServiceServer).Insert(ctx, req.(*InsertRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Activity_Log_Retrieve_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActivityLogService_Retrieve_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RetrieveRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(Activity_LogServer).Retrieve(ctx, in)
+		return srv.(ActivityLogServiceServer).Retrieve(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.v1.Activity_Log/Retrieve",
+		FullMethod: "/api.v1.ActivityLogService/Retrieve",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(Activity_LogServer).Retrieve(ctx, req.(*RetrieveRequest))
+		return srv.(ActivityLogServiceServer).Retrieve(ctx, req.(*RetrieveRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Activity_Log_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActivityLogService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(Activity_LogServer).List(ctx, in)
+		return srv.(ActivityLogServiceServer).List(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.v1.Activity_Log/List",
+		FullMethod: "/api.v1.ActivityLogService/List",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(Activity_LogServer).List(ctx, req.(*ListRequest))
+		return srv.(ActivityLogServiceServer).List(ctx, req.(*ListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Activity_Log_ServiceDesc is the grpc.ServiceDesc for Activity_Log service.
+// ActivityLogService_ServiceDesc is the grpc.ServiceDesc for ActivityLogService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Activity_Log_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.v1.Activity_Log",
-	HandlerType: (*Activity_LogServer)(nil),
+var ActivityLogService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "api.v1.ActivityLogService",
+	HandlerType: (*ActivityLogServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Insert",
-			Handler:    _Activity_Log_Insert_Handler,
+			Handler:    _ActivityLogService_Insert_Handler,
 		},
 		{
 			MethodName: "Retrieve",
-			Handler:    _Activity_Log_Retrieve_Handler,
+			Handler:    _ActivityLogService_Retrieve_Handler,
 		},
 		{
 			MethodName: "List",
-			Handler:    _Activity_Log_List_Handler,
+			Handler:    _ActivityLogService_List_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

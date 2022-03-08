@@ -23,7 +23,7 @@ func main() {
 		log.Fatalf("No cert found: %v", err)
 	}
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(tlsCreds)}
-	err = api.RegisterActivity_LogHandlerFromEndpoint(context.Background(), mux, grpcServerEndpoint, opts)
+	err = api.RegisterActivityLogServiceHandlerFromEndpoint(context.Background(), mux, grpcServerEndpoint, opts)
 	if err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

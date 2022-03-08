@@ -47,6 +47,7 @@ certs:
 build:
     FROM +deps
     COPY . .
+    RUN buf lint
     RUN go build -o build/activity-log cmd/server/main.go
     SAVE ARTIFACT build/activity-log /activity-log 
 

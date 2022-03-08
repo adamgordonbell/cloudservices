@@ -30,6 +30,7 @@ proto:
     COPY go.mod go.sum ./ 
     COPY api ./api
     COPY buf.* .
+    RUN buf lint
     RUN buf generate 
     SAVE ARTIFACT ./api AS LOCAL ./api 
 
@@ -47,7 +48,6 @@ certs:
 build:
     FROM +deps
     COPY . .
-    RUN buf lint
     RUN go build -o build/activity-log cmd/server/main.go
     SAVE ARTIFACT build/activity-log /activity-log 
 

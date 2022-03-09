@@ -1,10 +1,13 @@
 name: Go
 
 on:
-  push
-  pull_request
-  create
-  workflow_dispatch
+  push:
+   branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+  workflow_dispatch:
 
 jobs:
   ActivityLog:

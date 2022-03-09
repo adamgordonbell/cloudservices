@@ -3,11 +3,14 @@ name: Go
 on:
   push:
    branches:
-      - '*'
+      - 'main'
   pull_request:
     branches:
       - '*'
   workflow_dispatch:
+  create:
+    tags:
+      - '*'
 
 jobs:
   ActivityLog:

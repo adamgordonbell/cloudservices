@@ -7,6 +7,7 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/adamgordonbell/cloudservices/activity-log/api_v1";
 
 service ActivityLogService {
+    rpc Insert(InsertRequest) returns (InsertResponse) {}
     rpc Retrieve(RetrieveRequest) returns (RetrieveResponse) {}
     rpc List(ListRequest) returns (ListResponse) {}
 }

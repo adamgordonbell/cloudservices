@@ -31,6 +31,7 @@ proto:
     COPY api ./api
     COPY buf.* .
     RUN buf lint
+    RUN buf breaking --against "https://github.com/adamgordonbell/cloudservices.git#branch=buf,subdir=activity-log" 
     RUN buf generate 
     SAVE ARTIFACT ./api AS LOCAL ./api 
 

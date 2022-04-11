@@ -17,20 +17,34 @@ proto-deps:
     RUN wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-linux-x86_64.zip
     RUN unzip protoc.zip -d /usr/local/
     RUN go get google.golang.org/protobuf/cmd/protoc-gen-go \
-               google.golang.org/grpc/cmd/protoc-gen-go-grpc
+               google.golang.org/grpc/cmd/protoc-gen-go-grpc \
+               github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway \
+               github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2 
+    RUN VERSION="1.1.0" && \
+        curl -sSL "https://github.com/bufbuild/buf/releases/download/v${VERSION}/buf-$(uname -s)-$(uname -m)" -o "/usr/local/bin/buf" 
+    RUN chmod +x "/usr/local/bin/buf" 
 
 proto:
     FROM +proto-deps
     WORKDIR /activity-log
     COPY go.mod go.sum ./ 
     COPY api ./api
-    RUN protoc api/v1/*.proto \
-            --go_out=. \
-            --go_opt=paths=source_relative \
-            --go-grpc_out=. \
-            --go-grpc_opt=paths=source_relative \
-            --proto_path=.
-   SAVE ARTIFACT ./api AS LOCAL ./api 
+    COPY buf.* .
+    RUN buf lint
+    RUN buf breaking --against "https://github.com/adamgordonbell/cloudservices.git#branch=buf,subdir=activity-log" 
+    RUN buf generate 
+    SAVE ARTIFACT ./api AS LOCAL ./api 
+
+certs:
+    COPY go.mod go.sum ./ 
+    RUN go get github.com/cloudflare/cfssl/cmd/cfssl@v1.4.1 \
+              github.com/cloudflare/cfssl/cmd/cfssljson@v1.4.1
+    WORKDIR /activity-log/certs
+    COPY certs .
+    RUN cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+    RUN cfssl gencert -ca ca.pem -ca-key=ca-key.pem -config ca-config.json \
+                -profile=server server-csr.json | cfssljson -bare server 
+    SAVE ARTIFACT --keep-ts ./* AS LOCAL certs/
 
 build:
     FROM +deps
@@ -40,9 +54,10 @@ build:
 
 docker:
     COPY +build/activity-log .
+    COPY certs/* certs/
     ENTRYPOINT ["/activity-log/activity-log"]
     EXPOSE 8080
-    SAVE IMAGE --push agbell/cloudservices/activity-log
+    SAVE IMAGE agbell/cloudservices/activity-log
 
 grpcurl:
     FROM fullstorydev/grpcurl:latest
@@ -55,6 +70,7 @@ test-deps:
 
 test:
     FROM +test-deps
+    COPY certs/* certs/
     COPY test.sh .
     WITH DOCKER --load agbell/cloudservices/activity-log=+docker
         RUN  docker run -d -p 8080:8080 agbell/cloudservices/activity-log && \
@@ -62,6 +78,9 @@ test:
     END
 
 export:
+    FROM +certs
+    WORKDIR /activity-log
     COPY go.mod go.sum ./
     COPY api ./api
+    COPY certs ./certs
     SAVE ARTIFACT /activity-log

@@ -1,5 +1,6 @@
 VERSION 0.6
 FROM golang:1.17-alpine3.13
+WORKDIR /grpc-proxy
 
 service:
    WORKDIR /activity-log
@@ -7,26 +8,35 @@ service:
 
 deps:
     FROM +service
-    WORKDIR /activity-client
+    WORKDIR /grpc-proxy
     COPY ./go.mod ./
     RUN go mod download
 
 build:
     FROM +deps
     COPY . .
-    RUN go build -o build/activity-client cmd/client/main.go
-    SAVE ARTIFACT build/activity-client /activity-client
+    RUN go build -o build/grpc-proxy main.go
+    SAVE ARTIFACT build/grpc-proxy /grpc-proxy
+
+docker:
+    COPY +build/grpc-proxy .
+    WORKDIR /activity-log
+    COPY ../activity-log+export/activity-log .
+    WORKDIR /grpc-proxy
+    ENTRYPOINT ["/grpc-proxy/grpc-proxy"]
+    EXPOSE 8081
+    SAVE IMAGE agbell/cloudservices/grpc-proxy
 
 test-deps:
     FROM earthly/dind
     RUN apk add curl ripgrep
     WORKDIR /activity-log
     COPY ../activity-log+export/activity-log .
+    WORKDIR /grpc-proxy
 
 test:
     FROM +test-deps
-    WORKDIR /activity-client
-    COPY +build/activity-client ./activity-client
+    COPY +build/grpc-proxy ./grpc-proxy
     COPY test.sh .
     WITH DOCKER --load agbell/cloudservices/activity-server=../activity-log+docker
         RUN  docker run -d -p 8080:8080 agbell/cloudservices/activity-server && \

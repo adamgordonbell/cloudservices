@@ -1,0 +1,19 @@
+VERSION 0.6
+FROM golang:1.17-alpine3.13
+
+deps:
+    WORKDIR /lambda
+    COPY ./go.mod ./
+    RUN go mod download
+
+build:
+    FROM +deps
+    COPY . .
+    RUN go build -o lambda main.go
+    SAVE ARTIFACT /lambda/lambda /lambda
+
+docker:
+    FROM public.ecr.aws/lambda/provided:al2
+    COPY +build/* /lambda
+    ENTRYPOINT [ "/lambda" ]
+    SAVE IMAGE 459018586415.dkr.ecr.us-east-1.amazonaws.com/text-mode-go:latest

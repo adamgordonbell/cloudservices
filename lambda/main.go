@@ -1,9 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
+	"io/ioutil"
 
 	"github.com/aws/aws-lambda-go/lambda"
 )
@@ -21,10 +20,20 @@ type Response struct {
 	Headers    map[string]string `json:"headers"`
 }
 
+var headersTXT = map[string]string{"Content-Type": "application/json"}
+
 func HandleLambdaEvent(event Event) (Response, error) {
-	eventJson, _ := json.MarshalIndent(event, "", "  ")
-	log.Printf("EVENT: %s", eventJson)
-	return Response{Body: fmt.Sprintf("got url: %s", event.QueryStringParameters.Url), StatusCode: 200}, nil
+	if event.QueryStringParameters.Url == "" {
+		bytes, err := ioutil.ReadFile("index.txt")
+		if err != nil {
+			fmt.Print(err)
+			return Response{}, err
+		}
+		str := string(bytes) // convert content to a 'string'
+		return Response{Body: str, StatusCode: 200, Headers: headersTXT}, nil
+	} else {
+		return Response{Body: fmt.Sprintf("got url: %s", event.QueryStringParameters.Url), StatusCode: 200}, nil
+	}
 }
 
 func main() {

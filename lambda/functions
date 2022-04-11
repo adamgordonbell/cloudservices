@@ -13,6 +13,11 @@ call(){
 }'
 }
 
+callHome(){
+    curl --verbose -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{
+}'
+}
+
 login(){
     export AWS_PROFILE=earthly-dev
     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 459018586415.dkr.ecr.us-east-1.amazonaws.com

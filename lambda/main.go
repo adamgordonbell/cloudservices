@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
+	"net/http"
 
 	"github.com/aws/aws-lambda-go/lambda"
 )
@@ -29,10 +32,19 @@ func HandleLambdaEvent(event Event) (Response, error) {
 			fmt.Print(err)
 			return Response{}, err
 		}
-		str := string(bytes) // convert content to a 'string'
-		return Response{Body: str, StatusCode: 200, Headers: headersTXT}, nil
+		return Response{Body: string(bytes), StatusCode: 200, Headers: headersTXT}, nil
 	} else {
-		return Response{Body: fmt.Sprintf("got url: %s", event.QueryStringParameters.Url), StatusCode: 200}, nil
+		resp, err := http.Get(event.QueryStringParameters.Url)
+		if err != nil {
+			log.Printf("Error: %v", err)
+			return Response{StatusCode: 500}, err
+		}
+		bytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Printf("Error: %v", err)
+			return Response{StatusCode: 500}, err
+		}
+		return Response{Body: string(bytes), StatusCode: 200, Headers: headersTXT}, nil
 	}
 }
 

@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
-	"net/http"
+	"os/exec"
+	"strings"
+	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	readability "github.com/go-shiori/go-readability"
 )
 
 type Event struct {
@@ -26,6 +28,7 @@ type Response struct {
 var headersTXT = map[string]string{"Content-Type": "application/json"}
 
 func HandleLambdaEvent(event Event) (Response, error) {
+
 	if event.QueryStringParameters.Url == "" {
 		bytes, err := ioutil.ReadFile("index.txt")
 		if err != nil {
@@ -34,17 +37,20 @@ func HandleLambdaEvent(event Event) (Response, error) {
 		}
 		return Response{Body: string(bytes), StatusCode: 200, Headers: headersTXT}, nil
 	} else {
-		resp, err := http.Get(event.QueryStringParameters.Url)
+		article, err := readability.FromURL(event.QueryStringParameters.Url, 30*time.Second)
 		if err != nil {
-			log.Printf("Error: %v", err)
+			log.Printf("Error: failed to parse (422) %v: %v", event.QueryStringParameters.Url, err)
+			return Response{StatusCode: 422}, err
+		}
+		cmd := exec.Command("lynx", "--stdin", "--dump", "--nolist", "--assume_charset=utf8")
+		cmd.Stdin = strings.NewReader(article.Content)
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			log.Printf("Error: failed to lynx %v: %v", event.QueryStringParameters.Url, err)
 			return Response{StatusCode: 500}, err
 		}
-		bytes, err := io.ReadAll(resp.Body)
-		if err != nil {
-			log.Printf("Error: %v", err)
-			return Response{StatusCode: 500}, err
-		}
-		return Response{Body: string(bytes), StatusCode: 200, Headers: headersTXT}, nil
+		body := article.Title + "\n\n" + string(out) + "\n\n" + "Text-Mode By Earthly.dev"
+		return Response{Body: body, StatusCode: 200, Headers: headersTXT}, nil
 	}
 }
 

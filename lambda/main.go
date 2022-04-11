@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-lambda-go/lambda"
 )
@@ -10,7 +12,7 @@ type Event struct {
 	QueryStringParameters QueryStringParameters `json:"queryStringParameters"`
 }
 type QueryStringParameters struct {
-	url string
+	Url string `json:"url"`
 }
 
 type Response struct {
@@ -20,7 +22,9 @@ type Response struct {
 }
 
 func HandleLambdaEvent(event Event) (Response, error) {
-	return Response{Body: fmt.Sprintf("got url: %s", event.QueryStringParameters.url), StatusCode: 200}, nil
+	eventJson, _ := json.MarshalIndent(event, "", "  ")
+	log.Printf("EVENT: %s", eventJson)
+	return Response{Body: fmt.Sprintf("got url: %s", event.QueryStringParameters.Url), StatusCode: 200}, nil
 }
 
 func main() {

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+start(){
+    earthly +docker
+    docker run -p 9000:8080 459018586415.dkr.ecr.us-east-1.amazonaws.com/text-mode-go:latest
+}
+
+call(){
+    curl --verbose -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{
+  "queryStringParameters": {
+    "url": "https://earthly.dev/blog/golang-monorepo/"
+  }
+}'
+}
+
+login(){
+    export AWS_PROFILE=earthly-dev
+    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 459018586415.dkr.ecr.us-east-1.amazonaws.com
+}
+
+push(){
+    earthly +docker
+    docker push 459018586415.dkr.ecr.us-east-1.amazonaws.com/text-mode-go:latest
+    earthly \
+    --secret-file config=/Users/adam/.aws/config \
+    --secret-file credentials=/Users/adam/.aws/credentials \
+    +deploy
+}

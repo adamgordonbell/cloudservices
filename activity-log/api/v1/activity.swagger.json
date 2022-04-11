@@ -6,7 +6,7 @@
   },
   "tags": [
     {
-      "name": "Activity_Log"
+      "name": "ActivityLogService"
     }
   ],
   "consumes": [
@@ -16,9 +16,9 @@
     "application/json"
   ],
   "paths": {
-    "/api.v1.Activity_Log/Insert": {
+    "/api.v1.ActivityLogService/Insert": {
       "post": {
-        "operationId": "Activity_Log_Insert",
+        "operationId": "ActivityLogService_Insert",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -39,23 +39,23 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1Activity"
+              "$ref": "#/definitions/v1InsertRequest"
             }
           }
         ],
         "tags": [
-          "Activity_Log"
+          "ActivityLogService"
         ]
       }
     },
-    "/api.v1.Activity_Log/List": {
+    "/api.v1.ActivityLogService/List": {
       "post": {
-        "operationId": "Activity_Log_List",
+        "operationId": "ActivityLogService_List",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1Activities"
+              "$ref": "#/definitions/v1ListResponse"
             }
           },
           "default": {
@@ -76,18 +76,18 @@
           }
         ],
         "tags": [
-          "Activity_Log"
+          "ActivityLogService"
         ]
       }
     },
-    "/api.v1.Activity_Log/Retrieve": {
+    "/api.v1.ActivityLogService/Retrieve": {
       "post": {
-        "operationId": "Activity_Log_Retrieve",
+        "operationId": "ActivityLogService_Retrieve",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1Activity"
+              "$ref": "#/definitions/v1RetrieveResponse"
             }
           },
           "default": {
@@ -108,7 +108,7 @@
           }
         ],
         "tags": [
-          "Activity_Log"
+          "ActivityLogService"
         ]
       }
     }
@@ -141,17 +141,6 @@
         }
       }
     },
-    "v1Activities": {
-      "type": "object",
-      "properties": {
-        "activities": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Activity"
-          }
-        }
-      }
-    },
     "v1Activity": {
       "type": "object",
       "properties": {
@@ -165,6 +154,14 @@
         },
         "description": {
           "type": "string"
+        }
+      }
+    },
+    "v1InsertRequest": {
+      "type": "object",
+      "properties": {
+        "activity": {
+          "$ref": "#/definitions/v1Activity"
         }
       }
     },
@@ -186,12 +183,31 @@
         }
       }
     },
+    "v1ListResponse": {
+      "type": "object",
+      "properties": {
+        "activities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Activity"
+          }
+        }
+      }
+    },
     "v1RetrieveRequest": {
       "type": "object",
       "properties": {
         "id": {
           "type": "integer",
           "format": "int32"
+        }
+      }
+    },
+    "v1RetrieveResponse": {
+      "type": "object",
+      "properties": {
+        "activity": {
+          "$ref": "#/definitions/v1Activity"
         }
       }
     }

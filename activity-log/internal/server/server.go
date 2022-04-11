@@ -12,26 +12,24 @@ import (
 	status "google.golang.org/grpc/status"
 )
 
-// var _ api1.Activity = (*grpcServer)(nil)
-
 type GrpcServer struct {
-	api.UnimplementedActivity_LogServer
+	api.UnimplementedActivityLogServiceServer
 	Activities *Activities
 }
 
-func (s *GrpcServer) Retrieve(ctx context.Context, req *api.RetrieveRequest) (*api.Activity, error) {
-	resp, err := s.Activities.Retrieve(int(req.Id))
+func (s *GrpcServer) Retrieve(ctx context.Context, req *api.RetrieveRequest) (*api.RetrieveResponse, error) {
+	activity, err := s.Activities.Retrieve(int(req.Id))
 	if err == ErrIDNotFound {
 		return nil, status.Error(codes.NotFound, "id was not found")
 	}
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return resp, nil
+	return &api.RetrieveResponse{Activity: activity}, nil
 }
 
-func (s *GrpcServer) Insert(ctx context.Context, activity *api.Activity) (*api.InsertResponse, error) {
-	id, err := s.Activities.Insert(activity)
+func (s *GrpcServer) Insert(ctx context.Context, req *api.InsertRequest) (*api.InsertResponse, error) {
+	id, err := s.Activities.Insert(req.Activity)
 	if err != nil {
 		log.Printf("Error:%s", err.Error())
 		return nil, status.Error(codes.Internal, err.Error())
@@ -40,12 +38,12 @@ func (s *GrpcServer) Insert(ctx context.Context, activity *api.Activity) (*api.I
 	return &res, nil
 }
 
-func (s *GrpcServer) List(ctx context.Context, req *api.ListRequest) (*api.Activities, error) {
+func (s *GrpcServer) List(ctx context.Context, req *api.ListRequest) (*api.ListResponse, error) {
 	activities, err := s.Activities.List(int(req.Offset))
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &api.Activities{Activities: activities}, nil
+	return &api.ListResponse{Activities: activities}, nil
 }
 
 func NewGRPCServer() (*grpc.Server, GrpcServer) {
@@ -58,7 +56,7 @@ func NewGRPCServer() (*grpc.Server, GrpcServer) {
 	srv := GrpcServer{
 		Activities: acc,
 	}
-	api.RegisterActivity_LogServer(gsrv, &srv)
+	api.RegisterActivityLogServiceServer(gsrv, &srv)
 	return gsrv, srv
 }
 

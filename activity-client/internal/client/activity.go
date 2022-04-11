@@ -14,7 +14,7 @@ import (
 )
 
 type Activities struct {
-	client api.Activity_LogClient
+	client api.ActivityLogServiceClient
 }
 
 func NewActivities(URL string) Activities {
@@ -26,12 +26,12 @@ func NewActivities(URL string) Activities {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	client := api.NewActivity_LogClient(conn)
+	client := api.NewActivityLogServiceClient(conn)
 	return Activities{client: client}
 }
 
 func (c *Activities) Insert(ctx context.Context, activity *api.Activity) (int, error) {
-	resp, err := c.client.Insert(ctx, activity)
+	resp, err := c.client.Insert(ctx, &api.InsertRequest{Activity: activity})
 	if err != nil {
 		return 0, fmt.Errorf("Insert failure: %w", err)
 	}
@@ -50,7 +50,7 @@ func (c *Activities) Retrieve(ctx context.Context, id int) (*api.Activity, error
 			return &api.Activity{}, fmt.Errorf("Unexpected Insert failure: %w", err)
 		}
 	}
-	return resp, nil
+	return resp.Activity, nil
 }
 
 func (c *Activities) List(ctx context.Context, offset int) ([]*api.Activity, error) {

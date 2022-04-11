@@ -31,8 +31,8 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
-func request_Activity_Log_Insert_0(ctx context.Context, marshaler runtime.Marshaler, client Activity_LogClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq Activity
+func request_ActivityLogService_Insert_0(ctx context.Context, marshaler runtime.Marshaler, client ActivityLogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq InsertRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -48,8 +48,8 @@ func request_Activity_Log_Insert_0(ctx context.Context, marshaler runtime.Marsha
 
 }
 
-func local_request_Activity_Log_Insert_0(ctx context.Context, marshaler runtime.Marshaler, server Activity_LogServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq Activity
+func local_request_ActivityLogService_Insert_0(ctx context.Context, marshaler runtime.Marshaler, server ActivityLogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq InsertRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -65,7 +65,7 @@ func local_request_Activity_Log_Insert_0(ctx context.Context, marshaler runtime.
 
 }
 
-func request_Activity_Log_Retrieve_0(ctx context.Context, marshaler runtime.Marshaler, client Activity_LogClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActivityLogService_Retrieve_0(ctx context.Context, marshaler runtime.Marshaler, client ActivityLogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RetrieveRequest
 	var metadata runtime.ServerMetadata
 
@@ -82,7 +82,7 @@ func request_Activity_Log_Retrieve_0(ctx context.Context, marshaler runtime.Mars
 
 }
 
-func local_request_Activity_Log_Retrieve_0(ctx context.Context, marshaler runtime.Marshaler, server Activity_LogServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActivityLogService_Retrieve_0(ctx context.Context, marshaler runtime.Marshaler, server ActivityLogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RetrieveRequest
 	var metadata runtime.ServerMetadata
 
@@ -99,7 +99,7 @@ func local_request_Activity_Log_Retrieve_0(ctx context.Context, marshaler runtim
 
 }
 
-func request_Activity_Log_List_0(ctx context.Context, marshaler runtime.Marshaler, client Activity_LogClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActivityLogService_List_0(ctx context.Context, marshaler runtime.Marshaler, client ActivityLogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListRequest
 	var metadata runtime.ServerMetadata
 
@@ -116,7 +116,7 @@ func request_Activity_Log_List_0(ctx context.Context, marshaler runtime.Marshale
 
 }
 
-func local_request_Activity_Log_List_0(ctx context.Context, marshaler runtime.Marshaler, server Activity_LogServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActivityLogService_List_0(ctx context.Context, marshaler runtime.Marshaler, server ActivityLogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListRequest
 	var metadata runtime.ServerMetadata
 
@@ -133,24 +133,24 @@ func local_request_Activity_Log_List_0(ctx context.Context, marshaler runtime.Ma
 
 }
 
-// RegisterActivity_LogHandlerServer registers the http handlers for service Activity_Log to "mux".
-// UnaryRPC     :call Activity_LogServer directly.
+// RegisterActivityLogServiceHandlerServer registers the http handlers for service ActivityLogService to "mux".
+// UnaryRPC     :call ActivityLogServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterActivity_LogHandlerFromEndpoint instead.
-func RegisterActivity_LogHandlerServer(ctx context.Context, mux *runtime.ServeMux, server Activity_LogServer) error {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterActivityLogServiceHandlerFromEndpoint instead.
+func RegisterActivityLogServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ActivityLogServiceServer) error {
 
-	mux.Handle("POST", pattern_Activity_Log_Insert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActivityLogService_Insert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.v1.Activity_Log/Insert", runtime.WithHTTPPathPattern("/api.v1.Activity_Log/Insert"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.v1.ActivityLogService/Insert", runtime.WithHTTPPathPattern("/api.v1.ActivityLogService/Insert"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Activity_Log_Insert_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActivityLogService_Insert_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -158,22 +158,22 @@ func RegisterActivity_LogHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_Activity_Log_Insert_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActivityLogService_Insert_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Activity_Log_Retrieve_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActivityLogService_Retrieve_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.v1.Activity_Log/Retrieve", runtime.WithHTTPPathPattern("/api.v1.Activity_Log/Retrieve"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.v1.ActivityLogService/Retrieve", runtime.WithHTTPPathPattern("/api.v1.ActivityLogService/Retrieve"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Activity_Log_Retrieve_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActivityLogService_Retrieve_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -181,22 +181,22 @@ func RegisterActivity_LogHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_Activity_Log_Retrieve_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActivityLogService_Retrieve_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Activity_Log_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActivityLogService_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.v1.Activity_Log/List", runtime.WithHTTPPathPattern("/api.v1.Activity_Log/List"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.v1.ActivityLogService/List", runtime.WithHTTPPathPattern("/api.v1.ActivityLogService/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Activity_Log_List_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActivityLogService_List_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -204,16 +204,16 @@ func RegisterActivity_LogHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_Activity_Log_List_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActivityLogService_List_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	return nil
 }
 
-// RegisterActivity_LogHandlerFromEndpoint is same as RegisterActivity_LogHandler but
+// RegisterActivityLogServiceHandlerFromEndpoint is same as RegisterActivityLogServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterActivity_LogHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterActivityLogServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -233,79 +233,79 @@ func RegisterActivity_LogHandlerFromEndpoint(ctx context.Context, mux *runtime.S
 		}()
 	}()
 
-	return RegisterActivity_LogHandler(ctx, mux, conn)
+	return RegisterActivityLogServiceHandler(ctx, mux, conn)
 }
 
-// RegisterActivity_LogHandler registers the http handlers for service Activity_Log to "mux".
+// RegisterActivityLogServiceHandler registers the http handlers for service ActivityLogService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterActivity_LogHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterActivity_LogHandlerClient(ctx, mux, NewActivity_LogClient(conn))
+func RegisterActivityLogServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterActivityLogServiceHandlerClient(ctx, mux, NewActivityLogServiceClient(conn))
 }
 
-// RegisterActivity_LogHandlerClient registers the http handlers for service Activity_Log
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "Activity_LogClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "Activity_LogClient"
+// RegisterActivityLogServiceHandlerClient registers the http handlers for service ActivityLogService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ActivityLogServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ActivityLogServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "Activity_LogClient" to call the correct interceptors.
-func RegisterActivity_LogHandlerClient(ctx context.Context, mux *runtime.ServeMux, client Activity_LogClient) error {
+// "ActivityLogServiceClient" to call the correct interceptors.
+func RegisterActivityLogServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ActivityLogServiceClient) error {
 
-	mux.Handle("POST", pattern_Activity_Log_Insert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActivityLogService_Insert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/api.v1.Activity_Log/Insert", runtime.WithHTTPPathPattern("/api.v1.Activity_Log/Insert"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/api.v1.ActivityLogService/Insert", runtime.WithHTTPPathPattern("/api.v1.ActivityLogService/Insert"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Activity_Log_Insert_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActivityLogService_Insert_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Activity_Log_Insert_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActivityLogService_Insert_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Activity_Log_Retrieve_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActivityLogService_Retrieve_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/api.v1.Activity_Log/Retrieve", runtime.WithHTTPPathPattern("/api.v1.Activity_Log/Retrieve"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/api.v1.ActivityLogService/Retrieve", runtime.WithHTTPPathPattern("/api.v1.ActivityLogService/Retrieve"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Activity_Log_Retrieve_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActivityLogService_Retrieve_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Activity_Log_Retrieve_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActivityLogService_Retrieve_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Activity_Log_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActivityLogService_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/api.v1.Activity_Log/List", runtime.WithHTTPPathPattern("/api.v1.Activity_Log/List"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/api.v1.ActivityLogService/List", runtime.WithHTTPPathPattern("/api.v1.ActivityLogService/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Activity_Log_List_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActivityLogService_List_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Activity_Log_List_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActivityLogService_List_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -313,17 +313,17 @@ func RegisterActivity_LogHandlerClient(ctx context.Context, mux *runtime.ServeMu
 }
 
 var (
-	pattern_Activity_Log_Insert_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api.v1.Activity_Log", "Insert"}, ""))
+	pattern_ActivityLogService_Insert_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api.v1.ActivityLogService", "Insert"}, ""))
 
-	pattern_Activity_Log_Retrieve_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api.v1.Activity_Log", "Retrieve"}, ""))
+	pattern_ActivityLogService_Retrieve_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api.v1.ActivityLogService", "Retrieve"}, ""))
 
-	pattern_Activity_Log_List_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api.v1.Activity_Log", "List"}, ""))
+	pattern_ActivityLogService_List_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api.v1.ActivityLogService", "List"}, ""))
 )
 
 var (
-	forward_Activity_Log_Insert_0 = runtime.ForwardResponseMessage
+	forward_ActivityLogService_Insert_0 = runtime.ForwardResponseMessage
 
-	forward_Activity_Log_Retrieve_0 = runtime.ForwardResponseMessage
+	forward_ActivityLogService_Retrieve_0 = runtime.ForwardResponseMessage
 
-	forward_Activity_Log_List_0 = runtime.ForwardResponseMessage
+	forward_ActivityLogService_List_0 = runtime.ForwardResponseMessage
 )

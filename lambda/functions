@@ -2,7 +2,10 @@
 
 start(){
     earthly +docker
-    docker run -p 9000:8080 459018586415.dkr.ecr.us-east-1.amazonaws.com/text-mode-go:latest
+    docker run \
+        -v /Users/adam/.aws/config:/home/app/.aws/config:ro \
+        -v /Users/adam/.aws/credentials:/home/app/.aws/credentials:ro \
+        -p 9000:8080 459018586415.dkr.ecr.us-east-1.amazonaws.com/text-mode-go:latest
 }
 
 call(){

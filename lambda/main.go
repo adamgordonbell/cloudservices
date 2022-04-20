@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os/exec"
 	"strings"
@@ -30,51 +29,39 @@ type Response struct {
 }
 
 type App struct {
-	AwsSession *session.Session
-	S3         *s3.S3
+	S3 *s3.S3
 }
 
 var headersTXT = map[string]string{"Content-Type": "application/json"}
 
 func (app App) HandleLambdaEvent(event Event) (Response, error) {
-
-	if event.QueryStringParameters.Url == "" {
-		log.Println("Home page request")
-		bytes, err := ioutil.ReadFile("index.txt")
+	result, err := app.get(event.QueryStringParameters.Url)
+	if err != nil {
+		resp, err := process(event.QueryStringParameters.Url)
 		if err != nil {
-			fmt.Print(err)
-			return Response{}, err
+			return resp, err
 		}
-		return Response{Body: string(bytes), StatusCode: 200, Headers: headersTXT}, nil
-	} else {
-		log.Printf("request: %v", event.QueryStringParameters.Url)
-		cache, err := app.get(event.QueryStringParameters.Url)
-		if err != nil {
-			log.Printf("cache miss %v", err)
-			log.Printf("No cache found: %v", event.QueryStringParameters.Url)
-			article, err := readability.FromURL(event.QueryStringParameters.Url, 30*time.Second)
-			if err != nil {
-				log.Printf("Error: failed to parse (422) %v: %v", event.QueryStringParameters.Url, err)
-				return Response{StatusCode: 422}, err
-			}
-			cmd := exec.Command("lynx", "--stdin", "--dump", "--nolist", "--assume_charset=utf8")
-			cmd.Stdin = strings.NewReader(article.Content)
-			out, err := cmd.CombinedOutput()
-			if err != nil {
-				log.Printf("Error: failed to lynx %v: %v", event.QueryStringParameters.Url, err)
-				return Response{StatusCode: 500}, err
-			}
-			body := article.Title + "\n\n" + string(out) + "\n\n" + "Text-Mode By Earthly.dev"
-			err = app.put(event.QueryStringParameters.Url, body)
-			if err != nil {
-				log.Printf("Error: failed to put %v: %v", event.QueryStringParameters.Url, err)
-			}
-			return Response{Body: body, StatusCode: 200, Headers: headersTXT}, nil
-		} else {
-			log.Printf("cache found: %v", event.QueryStringParameters.Url)
-			return Response{Body: cache, StatusCode: 200, Headers: headersTXT}, nil
-		}
+		err = app.put(event.QueryStringParameters.Url, resp.Body)
+		return resp, err
 	}
+	return Response{Body: result, StatusCode: 200, Headers: headersTXT}, nil
+}
+
+func process(url string) (Response, error) {
+	article, err := readability.FromURL(url, 30*time.Second)
+	if err != nil {
+		log.Printf("Error: failed to parse (422) %v: %v", url, err)
+		return Response{StatusCode: 422}, err
+	}
+	cmd := exec.Command("lynx", "--stdin", "--dump", "--nolist", "--assume_charset=utf8")
+	cmd.Stdin = strings.NewReader(article.Content)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Printf("Error: failed to lynx %v: %v", url, err)
+		return Response{StatusCode: 500}, err
+	}
+	body := article.Title + "\n\n" + string(out)
+	return Response{Body: body, StatusCode: 200, Headers: headersTXT}, nil
 }
 
 func (app App) put(url string, result string) error {
@@ -117,7 +104,7 @@ func main() {
 		log.Fatalf("failed to create AWS session, %v", err)
 	}
 	s3 := s3.New(sess)
-	app := App{AwsSession: sess, S3: s3}
+	app := App{S3: s3}
 
 	lambda.Start(app.HandleLambdaEvent)
 }

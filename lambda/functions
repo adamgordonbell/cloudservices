@@ -3,9 +3,16 @@
 start(){
     earthly +docker
     docker run \
-        -v /Users/adam/.aws/config:/home/app/.aws/config:ro \
-        -v /Users/adam/.aws/credentials:/home/app/.aws/credentials:ro \
+        -v /Users/adam/.aws/config:/root/.aws/config:ro \
+        -v /Users/adam/.aws/credentials:/root/.aws/credentials:ro \
         -p 9000:8080 459018586415.dkr.ecr.us-east-1.amazonaws.com/text-mode-go:latest
+}
+
+attach(){
+    docker run --rm -it --entrypoint bash \
+     -v /Users/adam/.aws/config:/root/.aws/config:ro \
+     -v /Users/adam/.aws/credentials:/root/.aws/credentials:ro \
+    459018586415.dkr.ecr.us-east-1.amazonaws.com/text-mode-go:latest
 }
 
 call(){
@@ -19,6 +26,10 @@ call(){
 callHome(){
     curl --verbose -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{
 }'
+}
+
+callLive(){
+ curl 'https://earthly-tools.com/text-mode2?https://en.wikipedia.org/wiki/Donald_Trump'
 }
 
 login(){

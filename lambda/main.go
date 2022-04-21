@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 	"os/exec"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	readability "github.com/go-shiori/go-readability"
@@ -35,14 +37,20 @@ type App struct {
 var headersTXT = map[string]string{"Content-Type": "application/json"}
 
 func (app App) HandleLambdaEvent(event Event) (Response, error) {
+	log.Println("Received event: ", event)
+
 	result, err := app.get(event.QueryStringParameters.Url)
-	if err != nil {
+	if errors.Is(err, errNoKey) {
+		log.Println("No cache value found")
 		resp, err := process(event.QueryStringParameters.Url)
 		if err != nil {
 			return resp, err
 		}
+		log.Println("Caching value")
 		err = app.put(event.QueryStringParameters.Url, resp.Body)
 		return resp, err
+	} else if err != nil {
+		return Response{StatusCode: 500}, err
 	}
 	return Response{Body: result, StatusCode: 200, Headers: headersTXT}, nil
 }
@@ -78,6 +86,8 @@ func (app App) put(url string, result string) error {
 	return nil
 }
 
+var errNoKey = errors.New(s3.ErrCodeNoSuchKey)
+
 func (app App) get(url string) (string, error) {
 	req := &s3.GetObjectInput{
 		Bucket: aws.String("text-mode"),
@@ -85,7 +95,11 @@ func (app App) get(url string) (string, error) {
 	}
 	r, err := app.S3.GetObject(req)
 	if err != nil {
-		return "", fmt.Errorf("failed to get result: %w", err)
+		if s3Err, ok := err.(awserr.Error); ok && s3Err.Code() == s3.ErrCodeNoSuchKey {
+			return "", errNoKey
+		} else {
+			return "", fmt.Errorf("failed to get result: %w", err)
+		}
 	}
 	defer r.Body.Close()
 	buf := new(bytes.Buffer)

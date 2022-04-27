@@ -8,4 +8,6 @@ This is code supporting the article series on [earthly.dev](https://earthly.dev/
 1. SQLite Persistence with `database/sql` [Article](https://earthly.dev/blog/golang-sqlite/), [Code](https://github.com/adamgordonbell/cloudservices/tree/v3-sqlite)
 1. gRPC client and server: [Article](https://earthly.dev/blog/golang-grpc-example/), [Code](https://github.com/adamgordonbell/cloudservices/tree/v4-grpc)
 1. gRPC Gateway and Proxy: [Article](https://earthly.dev/blog/golang-grpc-gateway/), [Code](https://github.com/adamgordonbell/cloudservices/tree/v5-grpc-gateway)
+1. gRPC Gateway and Proxy: [Article](https://earthly.dev/blog/golang-grpc-gateway/), [Code](https://github.com/adamgordonbell/cloudservices/tree/v5-grpc-gateway)
+1. GoLang Containerized Lambda: [Article](https://earthly.dev/blog/blog/aws-lambda-golang.md/), [Code](https://github.com/adamgordonbell/cloudservices/tree/aws-lambda-1)
 1. [Latest Version](https://github.com/adamgordonbell/cloudservices/)

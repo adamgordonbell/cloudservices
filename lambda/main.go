@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os/exec"
 	"strings"
@@ -37,22 +38,31 @@ type App struct {
 var headersTXT = map[string]string{"Content-Type": "application/json"}
 
 func (app App) HandleLambdaEvent(event Event) (Response, error) {
-	log.Println("Received event: ", event)
-
-	result, err := app.get(event.QueryStringParameters.Url)
-	if errors.Is(err, errNoKey) {
-		log.Println("No cache value found")
-		resp, err := process(event.QueryStringParameters.Url)
+	if event.QueryStringParameters.Url == "" {
+		log.Println("Home page request")
+		bytes, err := ioutil.ReadFile("index.txt")
 		if err != nil {
-			return resp, err
+			fmt.Print(err)
+			return Response{}, err
 		}
-		log.Println("Caching value")
-		err = app.put(event.QueryStringParameters.Url, resp.Body)
-		return resp, err
-	} else if err != nil {
-		return Response{StatusCode: 500}, err
+		return Response{Body: string(bytes), StatusCode: 200, Headers: headersTXT}, nil
+	} else {
+		log.Printf("request: %v", event.QueryStringParameters.Url)
+		result, err := app.get(event.QueryStringParameters.Url)
+		if errors.Is(err, errNoKey) {
+			log.Println("No cache value found")
+			resp, err := process(event.QueryStringParameters.Url)
+			if err != nil {
+				return resp, err
+			}
+			log.Println("Caching value")
+			err = app.put(event.QueryStringParameters.Url, resp.Body)
+			return resp, err
+		} else if err != nil {
+			return Response{StatusCode: 500}, err
+		}
+		return Response{Body: result, StatusCode: 200, Headers: headersTXT}, nil
 	}
-	return Response{Body: result, StatusCode: 200, Headers: headersTXT}, nil
 }
 
 func process(url string) (Response, error) {

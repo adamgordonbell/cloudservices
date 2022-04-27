@@ -19,6 +19,7 @@ docker:
     COPY index.txt /var/task/
     # ENV LAMBDA_TASK_ROOT=/
     ENV _LAMBDA_SERVER_PORT=8080
+    ENV AWS_PROFILE=earthly-dev
     CMD [ "lambda" ]
     SAVE IMAGE 459018586415.dkr.ecr.us-east-1.amazonaws.com/text-mode-go:latest
 

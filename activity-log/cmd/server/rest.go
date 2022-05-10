@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/adamgordonbell/cloudservices/activity-log/internal/server"
+	"github.com/adamgordonbell/cloudservices/activity-log/server"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 
 	api "github.com/adamgordonbell/cloudservices/activity-log/api/v1"

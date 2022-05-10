@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/adamgordonbell/cloudservices/activity-log/internal/server"
+	"github.com/adamgordonbell/cloudservices/activity-log/server"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

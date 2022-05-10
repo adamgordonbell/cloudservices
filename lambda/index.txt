@@ -1,0 +1,40 @@
+Earthly.dev Presents:                                                                                              
+
+  _____                 _       
+ |_   _|   ___  __  __ | |_     
+   | |    / _ \ \ \/ / | __|    
+   | |   |  __/  >  <  | |_     
+   |_|    \___| /_/\_\  \__|    
+                                
+  __  __               _        
+ |  \/  |   ___     __| |   ___ 
+ | |\/| |  / _ \   / _` |  / _ \
+ | |  | | | (_) | | (_| | |  __/
+ |_|  |_|  \___/   \__,_|  \___|
+                                
+
+Save page weight by viewing the web in Content-Type=text/plain.
+
+Try these pages (you'll have to copy paste them into the browser bar. No links in text mode):
+
+Earthly Blog Post:
+https://earthly-tools.com/text-mode?url=https://earthly.dev/blog/golang-monorepo/
+
+Wikipedia:
+https://earthly-tools.com/text-mode?url=https://en.wikipedia.org/wiki/Software_engineering
+
+TechCrunch:
+https://earthly-tools.com/text-mode?url=https://techcrunch.com/2022/03/10/pokemon-go-creator-niantic-is-acquiring-webar-development-platform-8th-wall/
+
+The New Yorker:
+https://earthly-tools.com/text-mode?url=https://www.newyorker.com/news/letter-from-silicon-valley/the-lonely-work-of-moderating-hacker-news
+
+Blogs:
+https://earthly-tools.com/text-mode?url=https://slatestarcodex.com/2014/07/30/meditations-on-moloch/
+
+Newsletters:
+https://earthly-tools.com/text-mode?url=https://luke.substack.com/p/the-man-who-bowled-a-perfect-game-c37?s=r
+
+How it works:
+-------------
+URL -> Mozilla Readbility lib -> Lynx --> You

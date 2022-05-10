@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/adamgordonbell/cloudservices/activity-log/server"
+	"github.com/adamgordonbell/cloudservices/lambda-grpc/server"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/handlerfunc"
 	"google.golang.org/grpc/reflection"
@@ -13,7 +13,7 @@ import (
 func main() {
 	log.Println("Starting Up")
 
-	grpcServer, _ := server.NewGRPCServer()
+	grpcServer := server.NewGRPCServer()
 
 	// Register reflection service on gRPC server.
 	reflection.Register(grpcServer)

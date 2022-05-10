@@ -1,7 +1,12 @@
 VERSION 0.6
 FROM golang:1.17-stretch
 
+service:
+   WORKDIR /activity-log
+   COPY ../activity-log+export/activity-log .
+
 deps:
+    FROM +service
     WORKDIR /lambda
     COPY ./go.mod ./
     RUN go mod download

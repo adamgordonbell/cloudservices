@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package api.v1;
+
+option go_package = "github.com/adamgordonbell/cloudservices/lambda-grpc/api_v1";
+
+service NumberService {
+    rpc Count(CountRequest) returns (CountResponse) {}
+}
+
+message CountResponse {
+    int32 number = 1;
+}
+
+message CountRequest {
+    int32 number = 1;
+}

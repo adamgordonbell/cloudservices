@@ -1,14 +1,30 @@
 VERSION 0.6
 FROM golang:1.17-stretch
 
-service:
-   WORKDIR /activity-log
-   COPY ../activity-log+export/activity-log .
+proto-deps:
+    FROM golang:1.17-stretch
+    RUN apt-get update && apt-get install -y wget unzip
+    RUN wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-linux-x86_64.zip
+    RUN unzip protoc.zip -d /usr/local/
+    RUN go get google.golang.org/protobuf/cmd/protoc-gen-go \
+               google.golang.org/grpc/cmd/protoc-gen-go-grpc
+
+proto:
+    FROM +proto-deps
+    WORKDIR /activity-log
+    COPY go.mod go.sum ./ 
+    COPY api ./api
+    RUN protoc api/v1/*.proto \
+            --go_out=. \
+            --go_opt=paths=source_relative \
+            --go-grpc_out=. \
+            --go-grpc_opt=paths=source_relative \
+            --proto_path=.
+   SAVE ARTIFACT ./api AS LOCAL ./api 
 
 deps:
-    FROM +service
     WORKDIR /lambda
-    COPY ./go.mod ./
+    COPY go.mod go.sum ./
     RUN go mod download
 
 build:

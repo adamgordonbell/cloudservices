@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/gorillamux"
@@ -38,24 +40,37 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do stuff here
 		log.Println(r.RequestURI)
-		// Call the next handler, which can be another middleware in the chain, or the final handler.
 		next.ServeHTTP(w, r)
 	})
 }
 
 func main() {
-	log.Println("Starting up")
 	r := mux.NewRouter()
-	r.HandleFunc("/text-mode", TextModeHomeHandler)
-	r.HandleFunc("/lambda-api/text-mode", TextModeHomeHandler)
-	r.HandleFunc("/", HomeHandler)
-	http.Handle("/", r)
+	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Not found", r.RequestURI)
+		http.Error(w, fmt.Sprintf("Not found: %s", r.RequestURI), http.StatusNotFound)
+	})
+
+	s := r.PathPrefix("/default").Subrouter()
+	s.HandleFunc("/text-mode", TextModeHomeHandler)
+	s.HandleFunc("/", HomeHandler)
+
+	// http.Handle("/", r)
 
 	r.Use(loggingMiddleware)
 
-	adapter := gorillamux.NewV2(r)
+	if _, inLambda := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); inLambda {
+		log.Println("Starting up in Lambda Runtime")
+		adapter := gorillamux.NewV2(r)
+		lambda.Start(adapter.ProxyWithContext)
+	} else {
 
-	lambda.Start(adapter.ProxyWithContext)
+		log.Println("Starting up on own")
+		srv := &http.Server{
+			Addr:    ":8080",
+			Handler: r,
+		}
+		_ = srv.ListenAndServe()
+	}
 }

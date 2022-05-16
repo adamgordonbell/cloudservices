@@ -1,0 +1,17 @@
+#!/bin/bash
+
+login_to_ecr(){
+    export AWS_PROFILE=earthly-dev
+    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 459018586415.dkr.ecr.us-east-1.amazonaws.com
+}
+
+push(){
+    export AWS_PROFILE=earthly-dev
+    aws ecr create-repository --repository-name lambda-api || true
+    earthly +docker
+    docker push 459018586415.dkr.ecr.us-east-1.amazonaws.com/lambda-api:latest
+    earthly \
+        --secret-file config=/Users/adam/.aws/config \
+        --secret-file credentials=/Users/adam/.aws/credentials \
+        +deploy
+}

@@ -5,7 +5,7 @@ start(){
     docker run \
         -v /Users/adam/.aws/config:/root/.aws/config:ro \
         -v /Users/adam/.aws/credentials:/root/.aws/credentials:ro \
-        -p 9000:8080 459018586415.dkr.ecr.us-east-1.amazonaws.com/text-mode-go:latest
+        -p 9000:8080 459018586415.dkr.ecr.us-east-1.amazonaws.com/lambda-grpc:latest
 }
 
 attach(){
@@ -39,7 +39,7 @@ login(){
 
 push(){
     earthly +docker
-    docker push 459018586415.dkr.ecr.us-east-1.amazonaws.com/text-mode-go:latest
+    docker push 459018586415.dkr.ecr.us-east-1.amazonaws.com/lambda-grpc:latest
     earthly \
     --secret-file config=/Users/adam/.aws/config \
     --secret-file credentials=/Users/adam/.aws/credentials \

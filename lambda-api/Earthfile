@@ -15,12 +15,19 @@ build:
 docker:
     FROM public.ecr.aws/lambda/go:latest
     COPY +build/lambda* /var/task/
+    RUN yum install lynx -y
     COPY *.txt /var/task/
     COPY *.html /var/task/
     ENV _LAMBDA_SERVER_PORT=8080
     ENV AWS_PROFILE=earthly-dev
     CMD [ "lambda" ]
     SAVE IMAGE 459018586415.dkr.ecr.us-east-1.amazonaws.com/lambda-api:latest
+
+local-image:
+    FROM +docker
+    ENV AWS_LAMBDA_RUNTIME_API=
+    ENTRYPOINT [ "/var/task/lambda" ]
+    SAVE IMAGE lambda-api:latest
 
 deploy:
     FROM amazon/aws-cli

@@ -1,5 +1,21 @@
 #!/bin/bash
 
+start(){
+    earthly +local-image
+    docker run \
+        -v /Users/adam/.aws/config:/root/.aws/config:ro \
+        -v /Users/adam/.aws/credentials:/root/.aws/credentials:ro \
+        -p 8080:8080 lambda-api:latest
+}
+
+attach(){
+    docker run --rm -it --entrypoint bash \
+     -v /Users/adam/.aws/config:/root/.aws/config:ro \
+     -v /Users/adam/.aws/credentials:/root/.aws/credentials:ro \
+    lambda-api:latest
+}
+
+
 login_to_ecr(){
     export AWS_PROFILE=earthly-dev
     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 459018586415.dkr.ecr.us-east-1.amazonaws.com

@@ -14,18 +14,6 @@ import (
 	_ "github.com/motemen/go-loghttp/global"
 )
 
-func TextModeHomeHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Text Mode page request")
-	bytes, err := ioutil.ReadFile("textmode.txt")
-	if err != nil {
-		log.Print(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(bytes)
-}
-
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Home page request")
 	log.Println(r.RequestURI)
@@ -54,18 +42,16 @@ func main() {
 		http.Error(w, fmt.Sprintf("Not found: %s", r.RequestURI), http.StatusNotFound)
 	})
 
-	s := r.PathPrefix("/default/lambda-api").Subrouter()
-	s.HandleFunc("/text-mode", TextModeHomeHandler)
-	s.HandleFunc("/text-mode/{url}", app.TextModeHandler)
+	s := r.PathPrefix("/default").Subrouter()
+	s.HandleFunc("/text-mode", app.Handler)
 	s.HandleFunc("/", HomeHandler)
 	r.Use(loggingMiddleware)
 
-	if _, inLambda := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); inLambda {
+	if runtime_api, _ := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); runtime_api != "" {
 		log.Println("Starting up in Lambda Runtime")
 		adapter := gorillamux.NewV2(r)
 		lambda.Start(adapter.ProxyWithContext)
 	} else {
-
 		log.Println("Starting up on own")
 		srv := &http.Server{
 			Addr:    ":8080",

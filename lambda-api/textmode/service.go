@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os/exec"
@@ -33,8 +34,29 @@ func NewApp() App {
 	return App{S3: s3}
 }
 
+func (app App) Handler(w http.ResponseWriter, r *http.Request) {
+	if url := r.FormValue("url"); url != "" {
+		app.TextModeHandler(w, r)
+	} else {
+		TextModeHomeHandler(w, r)
+	}
+}
+
+func TextModeHomeHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Text Mode page request")
+	bytes, err := ioutil.ReadFile("textmode.txt")
+	if err != nil {
+		log.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(bytes)
+}
+
 func (app App) TextModeHandler(w http.ResponseWriter, r *http.Request) {
-	result, err := app.ProcessWithCache("https://www.google.com")
+	url := r.FormValue("url")
+	result, err := app.ProcessWithCache(url)
 	if err != nil {
 		log.Printf("Error: failed to process: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/adamgordonbell/cloudservices/lambda-api/textmode"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/gorillamux"
 	"github.com/gorilla/mux"
@@ -46,18 +47,17 @@ func loggingMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
+	app := textmode.NewApp()
 	r := mux.NewRouter()
 	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Not found", r.RequestURI)
 		http.Error(w, fmt.Sprintf("Not found: %s", r.RequestURI), http.StatusNotFound)
 	})
 
-	s := r.PathPrefix("/default").Subrouter()
+	s := r.PathPrefix("/default/lambda-api").Subrouter()
 	s.HandleFunc("/text-mode", TextModeHomeHandler)
+	s.HandleFunc("/text-mode/{url}", app.TextModeHandler)
 	s.HandleFunc("/", HomeHandler)
-
-	// http.Handle("/", r)
-
 	r.Use(loggingMiddleware)
 
 	if _, inLambda := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); inLambda {

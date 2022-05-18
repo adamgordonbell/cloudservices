@@ -15,6 +15,15 @@ attach(){
     lambda-api:latest
 }
 
+list_bucket(){
+    export AWS_PROFILE=earthly-dev
+    aws s3 ls s3://text-mode --recursive
+}
+
+clear_bucket(){
+    export AWS_PROFILE=earthly-dev
+    aws s3 rm s3://text-mode --recursive
+}
 
 login_to_ecr(){
     export AWS_PROFILE=earthly-dev

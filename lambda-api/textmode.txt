@@ -10,7 +10,7 @@ Earthly.dev Presents:
  |  \/  |   ___     __| |   ___ 
  | |\/| |  / _ \   / _` |  / _ \
  | |  | | | (_) | | (_| | |  __/
- |_|  |_|  \___/   \__,_|  \___|1
+ |_|  |_|  \___/   \__,_|  \___|
                                 
 
 Save page weight by viewing the web in Content-Type=text/plain.

@@ -38,6 +38,8 @@ login(){
 }
 
 push(){
+    export AWS_PROFILE=earthly-dev
+    
     earthly +docker
     docker push 459018586415.dkr.ecr.us-east-1.amazonaws.com/text-mode-go:latest
     earthly \

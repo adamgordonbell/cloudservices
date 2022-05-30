@@ -1,0 +1,41 @@
+VERSION 0.6
+FROM golang:1.17-stretch
+
+deps:
+    WORKDIR /lambda
+    COPY ./go.mod ./
+    RUN go mod download
+
+build:
+    FROM +deps
+    COPY . .
+    RUN go build -o lambda main.go
+    SAVE ARTIFACT /lambda/lambda /lambda
+
+docker:
+    FROM public.ecr.aws/lambda/go:latest
+    COPY +build/lambda* /var/task/
+    RUN yum install lynx -y
+    COPY *.txt /var/task/
+    COPY *.html /var/task/
+    ENV _LAMBDA_SERVER_PORT=8080
+    ENV AWS_PROFILE=earthly-dev
+    CMD [ "lambda" ]
+    SAVE IMAGE 459018586415.dkr.ecr.us-east-1.amazonaws.com/lambda-api:latest
+
+local-image:
+    FROM +docker
+    ENV AWS_LAMBDA_RUNTIME_API=
+    ENTRYPOINT [ "/var/task/lambda" ]
+    SAVE IMAGE lambda-api:latest
+
+deploy:
+    FROM amazon/aws-cli
+    ARG AWS_PROFILE=earthly-dev
+    RUN --mount=type=secret,target=/root/.aws/config,id=+secrets/config \
+        --mount=type=secret,target=/root/.aws/credentials,id=+secrets/credentials \
+        --no-cache \
+        aws lambda update-function-code \
+            --region us-east-1 \
+            --function-name lambda-api \
+            --image-uri 459018586415.dkr.ecr.us-east-1.amazonaws.com/lambda-api:latest

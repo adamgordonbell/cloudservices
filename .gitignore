@@ -7,7 +7,3 @@ activity-log/certs/*.csr
 ### Terraform ###
 # Local .terraform directories
 **/.terraform/*
-
-# .tfstate files
-*.tfstate
-*.tfstate.*

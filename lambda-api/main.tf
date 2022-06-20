@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     aws = {
-      source  = "hashicorp/aws"
+      source = "hashicorp/aws"
     }
   }
 }
@@ -69,40 +69,46 @@ provider "aws" {
 #   name                 = "lambda-api"
 # }
 
-# ## S3 
+## S3 
 resource "aws_s3_bucket" "text-mode" {
-#   arn           = "arn:aws:s3:::text-mode"
-#   bucket        = "text-mode"
-#   force_destroy = "false"
+  arn           = "arn:aws:s3:::text-mode"
+  bucket        = "text-mode"
+  force_destroy = "false"
 
-#   grant {
-#     id          = "cf64d8f33542c10c2190b0f9f3f651508d2fc7b8896fe916df79fac18f417c63"
-#     permissions = ["FULL_CONTROL"]
-#     type        = "CanonicalUser"
-#   }
 
-#   hosted_zone_id = "Z3AQBSTGFYJSTF"
 
-#   lifecycle_rule {
-#     abort_incomplete_multipart_upload_days = "0"
-#     enabled                                = "true"
-
-#     expiration {
-#       days                         = "14"
-#       expired_object_delete_marker = "false"
-#     }
-
-#     id = "delete_files_after_14_days"
-#   }
-
-#   object_lock_enabled = "false"
-#   request_payer       = "BucketOwner"
-
-#   versioning {
-#     enabled    = "false"
-#     mfa_delete = "false"
-#   }
+  hosted_zone_id = "Z3AQBSTGFYJSTF"
 }
+
+resource "aws_s3_bucket_lifecycle_configuration" "text-mode" {
+  bucket = aws_s3_bucket.text-mode.id
+  rule {
+    id     = "delete_files_after_14_days"
+    status = "Enabled"
+
+    expiration {
+      days = 14
+    }
+  }
+}
+
+# data "aws_caller_identity" "current" {}
+
+# resource "aws_s3_bucket_acl" "text-mode" {
+#   bucket = aws_s3_bucket.text-mode.id
+#   access_control_policy {
+#     grant {
+#       grantee {
+#         id   = "cf64d8f33542c10c2190b0f9f3f651508d2fc7b8896fe916df79fac18f417c63"
+#         type = "CanonicalUser"
+#       }
+#       permission = "FULL_CONTROL"
+#     }
+#    owner {
+#       id = data.aws_caller_identity.current.id
+#     }
+#   }
+# }
 
 
 ### Lambda 

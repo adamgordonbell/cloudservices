@@ -10,6 +10,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
+## Account ID
+data "aws_canonical_user_id" "current" {}
 
 # ## Domain Name
 
@@ -91,25 +93,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "text-mode" {
     }
   }
 }
-
-data "aws_canonical_user_id" "current" {}
-
-resource "aws_s3_bucket_acl" "text-mode" {
-  bucket = aws_s3_bucket.text-mode.id
-  access_control_policy {
-    grant {
-      grantee {
-        id   = "cf64d8f33542c10c2190b0f9f3f651508d2fc7b8896fe916df79fac18f417c63"
-        type = "CanonicalUser"
-      }
-      permission = "FULL_CONTROL"
-    }
-   owner {
-      id = data.aws_canonical_user_id.current.id
-    }
-  }
-}
-
 
 ### Lambda 
 

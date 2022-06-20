@@ -27,7 +27,8 @@ data "aws_canonical_user_id" "current" {}
 # }
 
 # ## ECR
-# resource "aws_ecr_repository_policy" "tfer--lambda-api" {
+
+# resource "aws_ecr_repository_policy" "lambda-api" {
 #   policy = <<POLICY
 # {
 #   "Statement": [
@@ -58,18 +59,18 @@ data "aws_canonical_user_id" "current" {}
 #   repository = "lambda-api"
 # }
 
-# resource "aws_ecr_repository" "tfer--lambda-api" {
-#   encryption_configuration {
-#     encryption_type = "AES256"
-#   }
+resource "aws_ecr_repository" "lambda-api" {
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
 
-#   image_scanning_configuration {
-#     scan_on_push = "false"
-#   }
+  image_scanning_configuration {
+    scan_on_push = "false"
+  }
 
-#   image_tag_mutability = "MUTABLE"
-#   name                 = "lambda-api"
-# }
+  image_tag_mutability = "MUTABLE"
+  name                 = "lambda-api"
+}
 
 ## S3 
 resource "aws_s3_bucket" "text-mode" {

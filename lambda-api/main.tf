@@ -92,33 +92,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "text-mode" {
   }
 }
 
-### Lambda 
-
-resource "aws_lambda_function" "lambda-api" {
-  architectures = ["x86_64"]
-
-  environment {
-    variables = {
-      HOME = "/tmp"
-    }
-  }
-
-  ephemeral_storage {
-    size = "512"
-  }
-
-  function_name                  = "lambda-api"
-  image_uri                      = "459018586415.dkr.ecr.us-east-1.amazonaws.com/lambda-api:latest"
-  memory_size                    = "500"
-  package_type                   = "Image"
-  reserved_concurrent_executions = "-1"
-  role                           = "arn:aws:iam::459018586415:role/service-role/lambda-api-role-hb6fczbh"
-  timeout                        = "120"
-
-  tracing_config {
-    mode = "PassThrough"
-  }
-}
 
 ## API GATEWAY
 
@@ -151,7 +124,7 @@ resource "aws_apigatewayv2_deployment" "earthly-tools-com" {
 
 resource "aws_apigatewayv2_stage" "earthly-tools-com" {
   api_id = aws_apigatewayv2_api.earthly-tools-com.id
-  name   = "default"
+  name   = "stage"
   auto_deploy = true
 }
 
@@ -172,9 +145,37 @@ resource "aws_apigatewayv2_integration" "earthly-tools-com" {
    connection_type        = "INTERNET"
     integration_method     = "POST"
     integration_type       = "AWS_PROXY"
-    integration_uri        = "arn:aws:lambda:us-east-1:459018586415:function:lambda-api"
+    integration_uri        = aws_lambda_function.lambda-api.arn
     payload_format_version = "2.0"
     request_parameters     = {}
     request_templates      = {}
     timeout_milliseconds   = 30000
+}
+
+### Lambda 
+
+resource "aws_lambda_function" "lambda-api" {
+  architectures = ["x86_64"]
+
+  environment {
+    variables = {
+      HOME = "/tmp"
+    }
+  }
+
+  ephemeral_storage {
+    size = "512"
+  }
+
+  function_name                  = "lambda-api"
+  image_uri                      = "459018586415.dkr.ecr.us-east-1.amazonaws.com/lambda-api:latest"
+  memory_size                    = "500"
+  package_type                   = "Image"
+  reserved_concurrent_executions = "-1"
+  role                           = "arn:aws:iam::459018586415:role/service-role/lambda-api-role-hb6fczbh"
+  timeout                        = "120"
+
+  tracing_config {
+    mode = "PassThrough"
+  }
 }

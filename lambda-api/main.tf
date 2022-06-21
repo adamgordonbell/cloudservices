@@ -151,7 +151,7 @@ resource "aws_apigatewayv2_deployment" "earthly-tools-com" {
 
 resource "aws_apigatewayv2_stage" "earthly-tools-com" {
   api_id = aws_apigatewayv2_api.earthly-tools-com.id
-  name   = "stage"
+  name   = "default"
   auto_deploy = true
 }
 

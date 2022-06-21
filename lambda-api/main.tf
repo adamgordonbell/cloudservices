@@ -151,7 +151,6 @@ resource "aws_apigatewayv2_deployment" "earthly-tools-com" {
 
 resource "aws_apigatewayv2_stage" "earthly-tools-com" {
   api_id = aws_apigatewayv2_api.earthly-tools-com.id
-  deployment_id = aws_apigatewayv2_deployment.earthly-tools-com.id
   name   = "stage"
   auto_deploy = true
 }
@@ -162,4 +161,20 @@ resource "aws_apigatewayv2_api_mapping" "earthly-tools-com" {
   stage       = aws_apigatewayv2_stage.earthly-tools-com.id
 }
 
+resource "aws_apigatewayv2_route" "earthly-tools-com" {
+  api_id = aws_apigatewayv2_api.earthly-tools-com.id
+  route_key            = "ANY /{path+}"
+  target               = "integrations/${aws_apigatewayv2_integration.earthly-tools-com.id}"
+}
 
+resource "aws_apigatewayv2_integration" "earthly-tools-com" {
+   api_id = aws_apigatewayv2_api.earthly-tools-com.id
+   connection_type        = "INTERNET"
+    integration_method     = "POST"
+    integration_type       = "AWS_PROXY"
+    integration_uri        = "arn:aws:lambda:us-east-1:459018586415:function:lambda-api"
+    payload_format_version = "2.0"
+    request_parameters     = {}
+    request_templates      = {}
+    timeout_milliseconds   = 30000
+}

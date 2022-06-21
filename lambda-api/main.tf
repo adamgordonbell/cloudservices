@@ -15,16 +15,16 @@ data "aws_canonical_user_id" "current" {}
 
 # ## Domain Name
 
-# resource "aws_acm_certificate" "tfer--c1cbfa57-36d2-423a-b815-fdb8585ba629_earthly-tools-002E-com" {
-#   domain_name = "earthly-tools.com"
+resource "aws_acm_certificate" "earthly-tools-com" {
+    domain_name               = "earthly-tools.com"
+    subject_alternative_names = [
+        "earthly-tools.com",
+    ]
 
-#   options {
-#     certificate_transparency_logging_preference = "ENABLED"
-#   }
-
-#   subject_alternative_names = ["earthly-tools.com"]
-#   validation_method         = "DNS"
-# }
+    options {
+        certificate_transparency_logging_preference = "ENABLED"
+    }
+}
 
 # ## ECR
 
@@ -122,9 +122,44 @@ resource "aws_lambda_function" "lambda-api" {
 
 ## API GATEWAY
 
-# resource "aws_api_gateway_rest_api" "text-mode-API"{
-# #     # arn                          = "arn:aws:apigateway:us-east-1::/apis/fu3kk58jj5"
-# #     # arn                          = "arn:aws:execute-api:us-east-1:459018586415:fu3kk58jj5"
-#     name = "text-mode-API"
-# }
+resource "aws_api_gateway_domain_name" "earthly-tools-com" {
+  domain_name              = "earthly-tools.com"
+  regional_certificate_arn = aws_acm_certificate.earthly-tools-com.arn
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+}
+
+resource "aws_apigatewayv2_api" "earthly-tools-com" {
+   api_key_selection_expression = "$request.header.x-api-key"
+    description                  = "Created by AWS Lambda"
+    disable_execute_api_endpoint = true
+    name                         = "text-mode-API"
+    protocol_type                = "HTTP"
+    route_selection_expression   = "$request.method $request.path"
+}
+
+resource "aws_apigatewayv2_deployment" "earthly-tools-com" {
+  api_id      = aws_apigatewayv2_api.earthly-tools-com.id
+  description = "deployment"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_apigatewayv2_stage" "earthly-tools-com" {
+  api_id = aws_apigatewayv2_api.earthly-tools-com.id
+  deployment_id = aws_apigatewayv2_deployment.earthly-tools-com.id
+  name   = "stage"
+  auto_deploy = true
+}
+
+resource "aws_apigatewayv2_api_mapping" "earthly-tools-com" {
+  api_id      = aws_apigatewayv2_api.earthly-tools-com.id
+  domain_name = aws_api_gateway_domain_name.earthly-tools-com.domain_name
+  stage       = aws_apigatewayv2_stage.earthly-tools-com.id
+}
+
 

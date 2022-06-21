@@ -28,37 +28,6 @@ data "aws_canonical_user_id" "current" {}
 
 # ## ECR
 
-# resource "aws_ecr_repository_policy" "lambda-api" {
-#   policy = <<POLICY
-# {
-#   "Statement": [
-#     {
-#       "Action": [
-#         "ecr:BatchGetImage",
-#         "ecr:GetDownloadUrlForLayer",
-#         "ecr:SetRepositoryPolicy",
-#         "ecr:DeleteRepositoryPolicy",
-#         "ecr:GetRepositoryPolicy"
-#       ],
-#       "Condition": {
-#         "StringLike": {
-#           "aws:sourceArn": "arn:aws:lambda:us-east-1:459018586415:function:*"
-#         }
-#       },
-#       "Effect": "Allow",
-#       "Principal": {
-#         "Service": "lambda.amazonaws.com"
-#       },
-#       "Sid": "LambdaECRImageRetrievalPolicy"
-#     }
-#   ],
-#   "Version": "2008-10-17"
-# }
-# POLICY
-
-#   repository = "lambda-api"
-# }
-
 resource "aws_ecr_repository" "lambda-api" {
   encryption_configuration {
     encryption_type = "AES256"
@@ -72,14 +41,42 @@ resource "aws_ecr_repository" "lambda-api" {
   name                 = "lambda-api"
 }
 
+resource "aws_ecr_repository_policy" "lambda-api" {
+  policy = <<POLICY
+{
+  "Statement": [
+    {
+      "Action": [
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:SetRepositoryPolicy",
+        "ecr:DeleteRepositoryPolicy",
+        "ecr:GetRepositoryPolicy"
+      ],
+      "Condition": {
+        "StringLike": {
+          "aws:sourceArn": "arn:aws:lambda:us-east-1:459018586415:function:*"
+        }
+      },
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Sid": "LambdaECRImageRetrievalPolicy"
+    }
+  ],
+  "Version": "2008-10-17"
+}
+POLICY
+
+  repository = aws_ecr_repository.lambda-api.name
+}
+
 ## S3 
 resource "aws_s3_bucket" "text-mode" {
   arn           = "arn:aws:s3:::text-mode"
   bucket        = "text-mode"
   force_destroy = "false"
-
-
-
   hosted_zone_id = "Z3AQBSTGFYJSTF"
 }
 

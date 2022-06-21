@@ -113,18 +113,19 @@ resource "aws_apigatewayv2_api" "earthly-tools-com" {
     route_selection_expression   = "$request.method $request.path"
 }
 
-resource "aws_apigatewayv2_deployment" "earthly-tools-com" {
-  api_id      = aws_apigatewayv2_api.earthly-tools-com.id
-  description = "deployment"
+## Not clear I need this at all
+# resource "aws_apigatewayv2_deployment" "earthly-tools-com" {
+#   api_id      = aws_apigatewayv2_api.earthly-tools-com.id
+#   description = "deployment"
 
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
 resource "aws_apigatewayv2_stage" "earthly-tools-com" {
   api_id = aws_apigatewayv2_api.earthly-tools-com.id
-  name   = "stage"
+  name   = "default"
   auto_deploy = true
 }
 
@@ -134,25 +135,8 @@ resource "aws_apigatewayv2_api_mapping" "earthly-tools-com" {
   stage       = aws_apigatewayv2_stage.earthly-tools-com.id
 }
 
-resource "aws_apigatewayv2_route" "earthly-tools-com" {
-  api_id = aws_apigatewayv2_api.earthly-tools-com.id
-  route_key            = "ANY /{path+}"
-  target               = "integrations/${aws_apigatewayv2_integration.earthly-tools-com.id}"
-}
 
-resource "aws_apigatewayv2_integration" "earthly-tools-com" {
-   api_id = aws_apigatewayv2_api.earthly-tools-com.id
-   connection_type        = "INTERNET"
-    integration_method     = "POST"
-    integration_type       = "AWS_PROXY"
-    integration_uri        = aws_lambda_function.lambda-api.arn
-    payload_format_version = "2.0"
-    request_parameters     = {}
-    request_templates      = {}
-    timeout_milliseconds   = 30000
-}
-
-### Lambda 
+## Lambda 
 
 resource "aws_lambda_function" "lambda-api" {
   architectures = ["x86_64"]
@@ -178,4 +162,25 @@ resource "aws_lambda_function" "lambda-api" {
   tracing_config {
     mode = "PassThrough"
   }
+}
+
+## Attach Lambda to API Gateway
+
+resource "aws_apigatewayv2_integration" "earthly-tools-com" {
+   api_id = aws_apigatewayv2_api.earthly-tools-com.id
+   connection_type        = "INTERNET"
+    integration_method     = "POST"
+    integration_type       = "AWS_PROXY"
+    integration_uri        = aws_lambda_function.lambda-api.arn
+    payload_format_version = "2.0"
+    request_parameters     = {}
+    request_templates      = {}
+    timeout_milliseconds   = 30000
+}
+
+
+resource "aws_apigatewayv2_route" "earthly-tools-com" {
+  api_id = aws_apigatewayv2_api.earthly-tools-com.id
+  route_key            = "ANY /{path+}"
+  target               = "integrations/${aws_apigatewayv2_integration.earthly-tools-com.id}"
 }

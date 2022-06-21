@@ -124,5 +124,7 @@ resource "aws_lambda_function" "lambda-api" {
 
 # resource "aws_api_gateway_rest_api" "text-mode-API"{
 # #     # arn                          = "arn:aws:apigateway:us-east-1::/apis/fu3kk58jj5"
+# #     # arn                          = "arn:aws:execute-api:us-east-1:459018586415:fu3kk58jj5"
 #     name = "text-mode-API"
 # }
+

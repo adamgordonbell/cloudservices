@@ -171,16 +171,15 @@ resource "aws_apigatewayv2_integration" "earthly-tools-com" {
    connection_type        = "INTERNET"
     integration_method     = "POST"
     integration_type       = "AWS_PROXY"
-    integration_uri        = aws_lambda_function.lambda-api.arn
+    integration_uri        = aws_lambda_function.lambda-api.invoke_arn
     payload_format_version = "2.0"
     request_parameters     = {}
     request_templates      = {}
     timeout_milliseconds   = 30000
 }
 
-
-resource "aws_apigatewayv2_route" "earthly-tools-com" {
-  api_id = aws_apigatewayv2_api.earthly-tools-com.id
-  route_key            = "ANY /{path+}"
-  target               = "integrations/${aws_apigatewayv2_integration.earthly-tools-com.id}"
-}
+# resource "aws_apigatewayv2_route" "earthly-tools-com" {
+#   api_id = aws_apigatewayv2_api.earthly-tools-com.id
+#   route_key            = "ANY /{path+}"
+#   target               = "integrations/${aws_apigatewayv2_integration.earthly-tools-com.id}"
+# }

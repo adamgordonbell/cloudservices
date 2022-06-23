@@ -41,7 +41,6 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// func logRawRequest
 func (s *State) logRawRequestAndProxy(ctx context.Context, event events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	jRequest, _ := json.Marshal(event)
 	log.Printf("Raw Input:\n %s\n", string(jRequest))

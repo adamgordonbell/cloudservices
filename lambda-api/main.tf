@@ -8,35 +8,16 @@ terraform {
 
 provider "aws" {
   region = "us-east-1"
+  profile = "earthly-dev"
 }
 
 ## Account ID
 data "aws_canonical_user_id" "current" {}
 
-# ## Domain Name
-
-resource "aws_acm_certificate" "earthly-tools-com" {
-    domain_name               = "earthly-tools.com"
-    subject_alternative_names = [
-        "earthly-tools.com",
-    ]
-
-    options {
-        certificate_transparency_logging_preference = "ENABLED"
-    }
-}
 
 # ## ECR
 
 resource "aws_ecr_repository" "lambda-api" {
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
-
-  image_scanning_configuration {
-    scan_on_push = "false"
-  }
-
   image_tag_mutability = "MUTABLE"
   name                 = "lambda-api"
 }
@@ -94,6 +75,19 @@ resource "aws_s3_bucket_lifecycle_configuration" "text-mode" {
 
 
 ## API GATEWAY
+
+# ## Domain Name
+
+resource "aws_acm_certificate" "earthly-tools-com" {
+    domain_name               = "earthly-tools.com"
+    subject_alternative_names = [
+        "earthly-tools.com",
+    ]
+
+    options {
+        certificate_transparency_logging_preference = "ENABLED"
+    }
+}
 
 resource "aws_api_gateway_domain_name" "earthly-tools-com" {
   domain_name              = "earthly-tools.com"

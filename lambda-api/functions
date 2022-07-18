@@ -30,7 +30,6 @@ export AWS_PROFILE=earthly-dev
 }
 
 ,push(){
-    aws ecr create-repository --repository-name lambda-api || true
     earthly +docker
     docker push 459018586415.dkr.ecr.us-east-1.amazonaws.com/lambda-api:latest
     earthly \

@@ -16,7 +16,6 @@ data "aws_canonical_user_id" "current" {}
 
 
 # ## ECR
-
 resource "aws_ecr_repository" "lambda-api" {
   image_tag_mutability = "MUTABLE"
   name                 = "lambda-api"
@@ -58,6 +57,7 @@ resource "aws_s3_bucket" "text-mode" {
   arn           = "arn:aws:s3:::text-mode"
   bucket        = "text-mode"
   force_destroy = "false"
+ # this zone needs to come into terraform
   hosted_zone_id = "Z3AQBSTGFYJSTF"
 }
 
@@ -119,6 +119,8 @@ resource "aws_apigatewayv2_api_mapping" "earthly-tools-com" {
   stage       = aws_apigatewayv2_stage.earthly-tools-com.id
 }
 
+# Container must exist in order to create Lambda function,
+# If lamda creation fails, push and rerun
 
 ## Lambda 
 
@@ -128,6 +130,7 @@ resource "aws_lambda_function" "lambda-api" {
   memory_size                    = "500"
   package_type                   = "Image"
   reserved_concurrent_executions = "-1"
+  # this role needs to come into terraform
   role                           = "arn:aws:iam::459018586415:role/service-role/lambda-api-role-hb6fczbh"
   timeout                        = "120"
   architectures = ["x86_64"]
@@ -147,7 +150,7 @@ resource "aws_lambda_function" "lambda-api" {
   }
 }
 
-## Attach Lambda to API Gateway
+# Attach Lambda to API Gateway
 resource "aws_apigatewayv2_integration" "earthly-tools-com" {
    api_id = aws_apigatewayv2_api.earthly-tools-com.id
    connection_type        = "INTERNET"
@@ -175,5 +178,5 @@ resource "aws_lambda_permission" "earthly-tools-com" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.lambda-api.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "arn:aws:execute-api:us-east-1:459018586415:yr255kt190/*/*/{path+}"
+  source_arn    = "arn:aws:execute-api:us-east-1:459018586415:${aws_apigatewayv2_api.earthly-tools-com.id}/*/*/{path+}"
 }

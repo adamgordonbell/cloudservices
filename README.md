@@ -10,5 +10,6 @@ This is code supporting the article series on [earthly.dev](https://earthly.dev/
 1. gRPC Gateway and Proxy: [Article](https://earthly.dev/blog/golang-grpc-gateway/), [Code](https://github.com/adamgordonbell/cloudservices/tree/v5-grpc-gateway)
 1. gRPC Gateway and Proxy: [Article](https://earthly.dev/blog/golang-grpc-gateway/), [Code](https://github.com/adamgordonbell/cloudservices/tree/v5-grpc-gateway)
 1. GoLang Containerized Lambda: [Article](https://earthly.dev/blog/blog/aws-lambda-golang.md/), [Code](https://github.com/adamgordonbell/cloudservices/tree/aws-lambda-1)
-1. GoLang API Proxy in Lambda: [Article](...), [Code](https://github.com/adamgordonbell/cloudservices/tree/aws-lambda-2)
+1. GoLang API Proxy in Lambda: [Article](https://earthly.dev/blog/aws-lambda-api-proxy/), [Code](https://github.com/adamgordonbell/cloudservices/tree/aws-lambda-2)
+1. Terraform Import: [Article](https://earthly.dev/blog/terraform-lambda/), [Code](https://github.com/adamgordonbell/cloudservices/tree/terraform-import)
 1. [Latest Version](https://github.com/adamgordonbell/cloudservices/)

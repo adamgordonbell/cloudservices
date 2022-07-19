@@ -4,11 +4,25 @@ terraform {
       source = "hashicorp/aws"
     }
   }
+  backend "s3" {
+    bucket = "blog-cloudservices-terraform-state"
+    key    = "lambda-api"
+    region = "us-east-1"
+  }
 }
 
 provider "aws" {
   region = "us-east-1"
   profile = "earthly-dev"
+}
+
+## S3 state bucket
+resource "aws_s3_bucket" "tfstate" {
+  bucket        = "blog-cloudservices-terraform-state"
+}
+resource "aws_s3_bucket_acl" "tfstate" {
+  bucket = aws_s3_bucket.tfstate.id
+  acl    = "private"
 }
 
 ## Account ID

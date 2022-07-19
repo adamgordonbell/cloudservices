@@ -1,6 +1,8 @@
 #!/bin/bash
 
-start(){
+export AWS_PROFILE=earthly-dev
+
+,start(){
     earthly +local-image
     docker run \
         -v /Users/adam/.aws/config:/root/.aws/config:ro \
@@ -8,35 +10,38 @@ start(){
         -p 8080:8080 lambda-api:latest
 }
 
-attach(){
+,attach(){
     docker run --rm -it --entrypoint bash \
      -v /Users/adam/.aws/config:/root/.aws/config:ro \
      -v /Users/adam/.aws/credentials:/root/.aws/credentials:ro \
     lambda-api:latest
 }
 
-list_bucket(){
-    export AWS_PROFILE=earthly-dev
+,list_bucket(){
     aws s3 ls s3://text-mode --recursive
 }
 
-clear_bucket(){
-    export AWS_PROFILE=earthly-dev
+,clear_bucket(){
     aws s3 rm s3://text-mode --recursive
 }
 
-login_to_ecr(){
-    export AWS_PROFILE=earthly-dev
+,login_to_ecr(){
     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 459018586415.dkr.ecr.us-east-1.amazonaws.com
 }
 
-push(){
-    export AWS_PROFILE=earthly-dev
-    aws ecr create-repository --repository-name lambda-api || true
+,push(){
     earthly +docker
     docker push 459018586415.dkr.ecr.us-east-1.amazonaws.com/lambda-api:latest
     earthly \
         --secret-file config=/Users/adam/.aws/config \
         --secret-file credentials=/Users/adam/.aws/credentials \
         +deploy
+}
+
+,terraform_dry_run(){
+    terraform plan 
+}
+
+,terraform_apply(){
+    terraform apply --auto-approve
 }

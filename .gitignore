@@ -3,3 +3,7 @@ activity-client/activity-client
 # activity-log/activities.db
 activity-log/certs/*.pem
 activity-log/certs/*.csr
+
+### Terraform ###
+# Local .terraform directories
+**/.terraform/*

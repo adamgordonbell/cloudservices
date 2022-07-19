@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -8,11 +10,16 @@ import (
 	"os"
 
 	"github.com/adamgordonbell/cloudservices/lambda-api/textmode"
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/gorillamux"
 	"github.com/gorilla/mux"
 	_ "github.com/motemen/go-loghttp/global"
 )
+
+type State struct {
+	adapter *gorillamux.GorillaMuxAdapterV2
+}
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Home page request")
@@ -34,6 +41,15 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func (s *State) logRawRequestAndProxy(ctx context.Context, event events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+	jRequest, _ := json.Marshal(event)
+	log.Printf("Raw Input:\n %s\n", string(jRequest))
+	resp, err := s.adapter.Proxy(event)
+	jResp, _ := json.Marshal(resp)
+	log.Printf("Raw Output:\n %s\n", string(jResp))
+	return resp, err
+}
+
 func main() {
 	app := textmode.NewApp()
 	r := mux.NewRouter()
@@ -50,7 +66,8 @@ func main() {
 	if runtime_api, _ := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); runtime_api != "" {
 		log.Println("Starting up in Lambda Runtime")
 		adapter := gorillamux.NewV2(r)
-		lambda.Start(adapter.ProxyWithContext)
+		state := &State{adapter: adapter}
+		lambda.Start(state.logRawRequestAndProxy)
 	} else {
 		log.Println("Starting up on own")
 		srv := &http.Server{

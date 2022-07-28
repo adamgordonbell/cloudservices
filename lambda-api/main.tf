@@ -88,7 +88,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "text-mode" {
 }
 
 
-## API GATEWAY
 
 # ## Domain Name
 
@@ -103,6 +102,8 @@ resource "aws_acm_certificate" "earthly-tools-com" {
     }
 }
 
+
+
 resource "aws_api_gateway_domain_name" "earthly-tools-com" {
   domain_name              = "earthly-tools.com"
   regional_certificate_arn = aws_acm_certificate.earthly-tools-com.arn
@@ -111,6 +112,24 @@ resource "aws_api_gateway_domain_name" "earthly-tools-com" {
     types = ["REGIONAL"]
   }
 }
+
+resource "aws_route53_zone" "primary" {
+ name = "earthly-tools.com" 
+}
+
+resource "aws_route53_record" "A" {
+    name    = "earthly-tools.com"
+    type    = "A"
+    zone_id = aws_route53_zone.primary.id
+
+    alias {
+        evaluate_target_health = true
+        name                   = aws_api_gateway_domain_name.earthly-tools-com.regional_domain_name
+        zone_id                = aws_api_gateway_domain_name.earthly-tools-com.regional_zone_id
+    }
+}
+
+## API GATEWAY
 
 resource "aws_apigatewayv2_api" "earthly-tools-com" {
    api_key_selection_expression = "$request.header.x-api-key"

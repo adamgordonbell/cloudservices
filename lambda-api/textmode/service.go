@@ -56,7 +56,8 @@ func TextModeHomeHandler(w http.ResponseWriter, r *http.Request) {
 
 func (app App) TextModeHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.FormValue("url")
-	result, err := app.ProcessWithCache(url)
+	mode := r.FormValue("mode")
+	result, err := app.ProcessWithCache(url, mode)
 	if err != nil {
 		log.Printf("Error: failed to process: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -71,16 +72,24 @@ var failedToParse = errors.New("failed to parse")
 var lynxFailure = errors.New("failed to run lynx")
 var cacheFailure = errors.New("failed to access cache")
 
-func (app App) ProcessWithCache(url string) (string, error) {
-	result, err := app.get(url)
+func (app App) ProcessWithCache(url string, mode string) (string, error) {
+	result, err := app.get(url, mode)
 	if errors.Is(err, errNoKey) {
 		log.Println("No cache value found")
-		resp, err := process(url)
+		var resp string
+		switch mode {
+		case "markdown":
+			resp, err = processToMarkdown(url)
+		case "html":
+			resp, err = processToReadable(url)
+		default:
+			resp, err = processToPlainText(url)
+		}
 		if err != nil {
 			return resp, err
 		}
 		log.Println("Caching value")
-		err = app.put(url, resp)
+		err = app.put(url, mode, resp)
 		return resp, err
 	} else if err != nil {
 		log.Printf("Error: failed to get cache: %v", err)
@@ -91,7 +100,18 @@ func (app App) ProcessWithCache(url string) (string, error) {
 	}
 }
 
-func process(url string) (string, error) {
+func processToReadable(url string) (string, error) {
+	log.Println("Processing to readability")
+	article, err := readability.FromURL(url, 30*time.Second)
+	if err != nil {
+		log.Printf("Error: failed to parse (422) %v: %v", url, err)
+		return "", failedToParse
+	}
+	return article.Content, nil
+}
+
+func processToPlainText(url string) (string, error) {
+	log.Println("Processing to Plain Text")
 	article, err := readability.FromURL(url, 30*time.Second)
 	if err != nil {
 		log.Printf("Error: failed to parse (422) %v: %v", url, err)
@@ -107,11 +127,28 @@ func process(url string) (string, error) {
 	return string(out), nil
 }
 
-func (app App) put(url string, result string) error {
+func processToMarkdown(url string) (string, error) {
+	log.Println("Processing to markdown")
+	article, err := readability.FromURL(url, 30*time.Second)
+	if err != nil {
+		log.Printf("Error: failed to parse (422) %v: %v", url, err)
+		return "", failedToParse
+	}
+	cmd := exec.Command("pandoc", "-s", "--from=html", "--to=markdown_strict-raw_html-native_divs-native_spans-fenced_divs-bracketed_spans")
+	cmd.Stdin = strings.NewReader(article.Content)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Printf("Error: failed to lynx %v: %v", url, err)
+		return "", lynxFailure
+	}
+	return string(out), nil
+}
+
+func (app App) put(url string, mode string, result string) error {
 	input := &s3.PutObjectInput{
 		Body:   strings.NewReader(result),
 		Bucket: aws.String("text-mode"),
-		Key:    aws.String(url),
+		Key:    aws.String(url + ">" + mode),
 	}
 	r, err := app.S3.PutObject(input)
 	if err != nil {
@@ -123,10 +160,10 @@ func (app App) put(url string, result string) error {
 
 var errNoKey = errors.New(s3.ErrCodeNoSuchKey)
 
-func (app App) get(url string) (string, error) {
+func (app App) get(url string, mode string) (string, error) {
 	req := &s3.GetObjectInput{
 		Bucket: aws.String("text-mode"),
-		Key:    aws.String(url),
+		Key:    aws.String(url + ">" + mode),
 	}
 	r, err := app.S3.GetObject(req)
 	if err != nil {

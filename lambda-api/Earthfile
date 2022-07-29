@@ -15,7 +15,9 @@ build:
 docker:
     FROM public.ecr.aws/lambda/go:latest
     COPY +build/lambda* /var/task/
-    RUN yum install lynx -y
+    RUN yum install lynx wget -y
+    RUN wget -P /etc/yum.repos.d/ http://petersen.fedorapeople.org/pandoc-standalone/pandoc-standalone.repo
+    RUN yum install pandoc -y
     COPY *.txt /var/task/
     COPY *.html /var/task/
     ENV _LAMBDA_SERVER_PORT=8080

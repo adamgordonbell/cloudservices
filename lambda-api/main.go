@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -44,7 +45,6 @@ func (s *State) logRawRequestAndProxy(ctx context.Context, event events.APIGatew
 }
 
 func main() {
-	app := NewApp()
 	r := mux.NewRouter()
 	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Not found", r.RequestURI)
@@ -53,8 +53,11 @@ func main() {
 
 	s := r.PathPrefix("/default").Subrouter()
 	s.HandleFunc("/text-mode", textmode.Handler)
+	s.HandleFunc("/markdown-mode", handlerCreator(textmode.ConvertHTMLToMarkDown, "text/plain; charset=utf-8"))
+	s.HandleFunc("/markdown-mode2", handlerCreator(textmode.ConvertHTMLToReadableMarkDown, "text/plain; charset=utf-8"))
 	s.HandleFunc("/", HomeHandler)
-	r.Use(app.cachingMiddleWare)
+	// app := NewApp()
+	// r.Use(app.cachingMiddleWare)
 
 	if runtime_api, _ := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); runtime_api != "" {
 		log.Println("Starting up in Lambda Runtime")
@@ -69,4 +72,42 @@ func main() {
 		}
 		_ = srv.ListenAndServe()
 	}
+}
+
+func handlerCreator(opp textmode.Conversion, contentType string) func(http.ResponseWriter,
+	*http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if url := r.FormValue("url"); url != "" {
+			body, err := RequestBody(url)
+			if err != nil {
+				log.Printf("Error getting content: %s", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			result, err := opp(body, url)
+			if err != nil {
+				log.Printf("Error converting content: %s", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			w.Header().Set("Content-Type", contentType)
+			w.WriteHeader(http.StatusOK)
+			_, _ = io.WriteString(w, result)
+		} else {
+			textmode.TextModeHomeHandler(w, r)
+		}
+	}
+}
+
+func RequestBody(url string) (string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(body), nil
 }

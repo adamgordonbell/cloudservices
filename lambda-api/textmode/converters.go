@@ -1,6 +1,7 @@
 package textmode
 
 import (
+	"fmt"
 	"log"
 	nurl "net/url"
 	"os/exec"
@@ -11,7 +12,7 @@ import (
 
 type Conversion func(string, string) (string, error)
 
-func ConvertHTMLToReadablePlainText(body string, pageURL *nurl.URL) (string, error) {
+func ConvertHTMLToReadablePlainText(body string, pageURL string) (string, error) {
 	body, err := ConvertHTMLToReadableHTML(body, pageURL)
 	if err != nil {
 		return "", err
@@ -19,7 +20,7 @@ func ConvertHTMLToReadablePlainText(body string, pageURL *nurl.URL) (string, err
 	return ConvertHTMLToPlainText(body, pageURL)
 }
 
-func ConvertHTMLToReadableMarkDown(body string, pageURL *nurl.URL) (string, error) {
+func ConvertHTMLToReadableMarkDown(body string, pageURL string) (string, error) {
 	body, err := ConvertHTMLToReadableHTML(body, pageURL)
 	if err != nil {
 		return "", err
@@ -27,9 +28,13 @@ func ConvertHTMLToReadableMarkDown(body string, pageURL *nurl.URL) (string, erro
 	return ConvertHTMLToMarkDown(body, pageURL)
 }
 
-func ConvertHTMLToReadableHTML(body string, pageURL *nurl.URL) (string, error) {
+func ConvertHTMLToReadableHTML(body string, pageURL string) (string, error) {
 	log.Println("Processing HTML to Plain Text")
-	article, err := readability.FromReader(strings.NewReader(body), pageURL)
+	parsedURL, err := nurl.ParseRequestURI(pageURL)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse URL: %v", err)
+	}
+	article, err := readability.FromReader(strings.NewReader(body), parsedURL)
 	if err != nil {
 		log.Printf("Error: failed to parse url: %s", pageURL)
 		return "", failedToParse
@@ -37,7 +42,7 @@ func ConvertHTMLToReadableHTML(body string, pageURL *nurl.URL) (string, error) {
 	return article.Content, nil
 }
 
-func ConvertHTMLToPlainText(body string, pageURL *nurl.URL) (string, error) {
+func ConvertHTMLToPlainText(body string, pageURL string) (string, error) {
 	log.Println("Processing HTML to Markdown using lynx")
 	cmd := exec.Command("lynx", "--stdin", "--dump", "--nolist", "--assume_charset=utf8")
 	cmd.Stdin = strings.NewReader(body)
@@ -49,7 +54,7 @@ func ConvertHTMLToPlainText(body string, pageURL *nurl.URL) (string, error) {
 	return string(out), nil
 }
 
-func ConvertHTMLToMarkDown(body string, pageURL *nurl.URL) (string, error) {
+func ConvertHTMLToMarkDown(body string, pageURL string) (string, error) {
 	log.Println("Processing HTML to Markdown using lynx")
 	cmd := exec.Command("pandoc", "-s", "--from=html", "--to=markdown_strict-raw_html-native_divs-native_spans-fenced_divs-bracketed_spans")
 	cmd.Stdin = strings.NewReader(body)

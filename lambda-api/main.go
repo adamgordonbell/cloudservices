@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -35,6 +36,18 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(bytes)
 }
 
+func TextModeHomeHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Text Mode page request")
+	bytes, err := ioutil.ReadFile("textmode.txt")
+	if err != nil {
+		log.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(bytes)
+}
+
 func (s *State) logRawRequestAndProxy(ctx context.Context, event events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	jRequest, _ := json.Marshal(event)
 	log.Printf("Raw Input:\n %s\n", string(jRequest))
@@ -51,13 +64,16 @@ func main() {
 		http.Error(w, fmt.Sprintf("Not found: %s", r.RequestURI), http.StatusNotFound)
 	})
 
+	app := NewApp()
 	s := r.PathPrefix("/default").Subrouter()
-	s.HandleFunc("/text-mode", textmode.Handler)
-	s.HandleFunc("/markdown-mode", handlerCreator(textmode.ConvertHTMLToMarkDown, "text/plain; charset=utf-8"))
-	s.HandleFunc("/markdown-mode2", handlerCreator(textmode.ConvertHTMLToReadableMarkDown, "text/plain; charset=utf-8"))
+	s.HandleFunc("/text-mode", app.handlerCreator(textmode.ConvertHTMLToReadablePlainText, "text/plain; charset=utf-8"))
+	s.HandleFunc("/text-mode-raw", app.handlerCreator(textmode.ConvertHTMLToPlainText, "text/plain; charset=utf-8"))
+
+	s.HandleFunc("/markdown-mode", app.handlerCreator(textmode.ConvertHTMLToReadableMarkDown, "text/plain; charset=utf-8"))
+	s.HandleFunc("/markdown-mode-raw", app.handlerCreator(textmode.ConvertHTMLToMarkDown, "text/plain; charset=utf-8"))
+
+	s.HandleFunc("/html-mode", app.handlerCreator(textmode.ConvertHTMLToReadableHTML, "text/html; charset=utf-8"))
 	s.HandleFunc("/", HomeHandler)
-	// app := NewApp()
-	// r.Use(app.cachingMiddleWare)
 
 	if runtime_api, _ := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); runtime_api != "" {
 		log.Println("Starting up in Lambda Runtime")
@@ -74,28 +90,46 @@ func main() {
 	}
 }
 
-func handlerCreator(opp textmode.Conversion, contentType string) func(http.ResponseWriter,
+func (app App) handlerCreator(opp textmode.Conversion, contentType string) func(http.ResponseWriter,
 	*http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if url := r.FormValue("url"); url != "" {
-			body, err := RequestBody(url)
+			result, err := app.RunAndCache(opp, url, r.RequestURI)
 			if err != nil {
 				log.Printf("Error getting content: %s", err)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			result, err := opp(body, url)
-			if err != nil {
-				log.Printf("Error converting content: %s", err)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
+
 			w.Header().Set("Content-Type", contentType)
 			w.WriteHeader(http.StatusOK)
 			_, _ = io.WriteString(w, result)
 		} else {
-			textmode.TextModeHomeHandler(w, r)
+			TextModeHomeHandler(w, r)
 		}
+	}
+}
+
+func (app App) RunAndCache(opp textmode.Conversion, url string, path string) (string, error) {
+	key := getCacheKey(url, path)
+	result, err := app.get(key)
+	if errors.Is(err, errNoKey) {
+		log.Println("No cache value found")
+		body, err := RequestBody(url)
+		if err != nil {
+			return "", fmt.Errorf("Error getting content: %w", err)
+		}
+		result, err := opp(body, url)
+		if err != nil {
+			return "", fmt.Errorf("Error converting content: %w", err)
+		}
+		_ = app.put(key, result)
+		return result, nil
+	} else if err != nil {
+		return "", fmt.Errorf("Error: failed to get cache: %w, calling method", err)
+	} else {
+		log.Println("Cache hit")
+		return result, nil
 	}
 }
 

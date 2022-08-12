@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -31,30 +30,8 @@ func NewApp() App {
 	return App{S3: s3}
 }
 
-func (app App) cachingMiddleWare(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		key := getCacheKey(r)
-		result, err := app.get(key)
-		if errors.Is(err, errNoKey) {
-			log.Println("No cache value found")
-			next.ServeHTTP(w, r)
-		} else if err != nil {
-			log.Printf("Error: failed to get cache: %v, calling method", err)
-			next.ServeHTTP(w, r)
-		} else {
-			log.Println("Cache hit")
-			//ToDo: Need to set header here from cache somehow
-			w.Header().Set("Content-Type", "text/html")
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte(result))
-		}
-		//ToDo: Need to store result in cache somehow
-		// err = app.put(key, resp)
-	})
-}
-
-func getCacheKey(r *http.Request) string {
-	return r.URL.String()
+func getCacheKey(path string, url string) string {
+	return path + "|" + url
 }
 
 func (app App) put(key string, result string) error {

@@ -1,6 +1,7 @@
 package textmode
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	nurl "net/url"
@@ -11,6 +12,10 @@ import (
 )
 
 type Conversion func(string, string) (string, error)
+
+var failedToParse = errors.New("failed to parse")
+var lynxFailure = errors.New("failed to run lynx")
+var pandocFailure = errors.New("failed to run pandoc")
 
 func ConvertHTMLToReadablePlainText(body string, pageURL string) (string, error) {
 	body, err := ConvertHTMLToReadableHTML(body, pageURL)

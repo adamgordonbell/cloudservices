@@ -1,9 +1,7 @@
 package textmode
 
 import (
-	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -12,31 +10,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 	readability "github.com/go-shiori/go-readability"
 )
 
-type App struct {
-	S3 *s3.S3
-}
-
-func NewApp() App {
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-east-1")},
-	)
-	if err != nil {
-		log.Fatalf("failed to create AWS session, %v", err)
-	}
-	s3 := s3.New(sess)
-	return App{S3: s3}
-}
-
-func (app App) Handler(w http.ResponseWriter, r *http.Request) {
+func Handler(w http.ResponseWriter, r *http.Request) {
 	if url := r.FormValue("url"); url != "" {
-		app.TextModeHandler(w, r)
+		TextModeHandler(w, r)
 	} else {
 		TextModeHomeHandler(w, r)
 	}
@@ -54,10 +33,10 @@ func TextModeHomeHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(bytes)
 }
 
-func (app App) TextModeHandler(w http.ResponseWriter, r *http.Request) {
+func TextModeHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.FormValue("url")
 	mode := r.FormValue("mode")
-	result, err := app.ProcessWithCache(url, mode)
+	result, err := Process(url, mode)
 	if err != nil {
 		log.Printf("Error: failed to process: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -70,34 +49,21 @@ func (app App) TextModeHandler(w http.ResponseWriter, r *http.Request) {
 
 var failedToParse = errors.New("failed to parse")
 var lynxFailure = errors.New("failed to run lynx")
-var cacheFailure = errors.New("failed to access cache")
+var pandocFailure = errors.New("failed to run pandoc")
 
-func (app App) ProcessWithCache(url string, mode string) (string, error) {
-	result, err := app.get(url, mode)
-	if errors.Is(err, errNoKey) {
-		log.Println("No cache value found")
-		var resp string
-		switch mode {
-		case "markdown":
-			resp, err = processToMarkdown(url)
-		case "html":
-			resp, err = processToReadable(url)
-		default:
-			resp, err = processToPlainText(url)
-		}
-		if err != nil {
-			return resp, err
-		}
-		log.Println("Caching value")
-		err = app.put(url, mode, resp)
-		return resp, err
-	} else if err != nil {
-		log.Printf("Error: failed to get cache: %v", err)
-		return "", cacheFailure
-	} else {
-		log.Println("Cache hit")
-		return result, nil
+func Process(url string, mode string) (string, error) {
+	var resp string
+	var err error
+	//ToDo: These should be replaced with handlers that call converters
+	switch mode {
+	case "markdown":
+		resp, err = processToMarkdown(url)
+	case "html":
+		resp, err = processToReadable(url)
+	default:
+		resp, err = processToPlainText(url)
 	}
+	return resp, err
 }
 
 func processToReadable(url string) (string, error) {
@@ -142,42 +108,4 @@ func processToMarkdown(url string) (string, error) {
 		return "", lynxFailure
 	}
 	return string(out), nil
-}
-
-func (app App) put(url string, mode string, result string) error {
-	input := &s3.PutObjectInput{
-		Body:   strings.NewReader(result),
-		Bucket: aws.String("text-mode"),
-		Key:    aws.String(url + ">" + mode),
-	}
-	r, err := app.S3.PutObject(input)
-	if err != nil {
-		return fmt.Errorf("failed to store result: %w", err)
-	}
-	log.Printf("Stored result: %v", r)
-	return nil
-}
-
-var errNoKey = errors.New(s3.ErrCodeNoSuchKey)
-
-func (app App) get(url string, mode string) (string, error) {
-	req := &s3.GetObjectInput{
-		Bucket: aws.String("text-mode"),
-		Key:    aws.String(url + ">" + mode),
-	}
-	r, err := app.S3.GetObject(req)
-	if err != nil {
-		if s3Err, ok := err.(awserr.Error); ok && s3Err.Code() == s3.ErrCodeNoSuchKey {
-			return "", errNoKey
-		} else {
-			return "", fmt.Errorf("failed to get result: %w", err)
-		}
-	}
-	defer r.Body.Close()
-	buf := new(bytes.Buffer)
-	_, err = buf.ReadFrom(r.Body)
-	if err != nil {
-		return "", fmt.Errorf("failed to get S3 result: %w", err)
-	}
-	return buf.String(), nil
 }

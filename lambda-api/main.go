@@ -34,13 +34,6 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(bytes)
 }
 
-func loggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println(r.RequestURI)
-		next.ServeHTTP(w, r)
-	})
-}
-
 func (s *State) logRawRequestAndProxy(ctx context.Context, event events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	jRequest, _ := json.Marshal(event)
 	log.Printf("Raw Input:\n %s\n", string(jRequest))
@@ -51,7 +44,7 @@ func (s *State) logRawRequestAndProxy(ctx context.Context, event events.APIGatew
 }
 
 func main() {
-	app := textmode.NewApp()
+	app := NewApp()
 	r := mux.NewRouter()
 	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Not found", r.RequestURI)
@@ -59,9 +52,9 @@ func main() {
 	})
 
 	s := r.PathPrefix("/default").Subrouter()
-	s.HandleFunc("/text-mode", app.Handler)
+	s.HandleFunc("/text-mode", textmode.Handler)
 	s.HandleFunc("/", HomeHandler)
-	r.Use(loggingMiddleware)
+	r.Use(app.cachingMiddleWare)
 
 	if runtime_api, _ := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); runtime_api != "" {
 		log.Println("Starting up in Lambda Runtime")

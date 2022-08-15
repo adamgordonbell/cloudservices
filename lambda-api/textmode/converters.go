@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/JesusIslam/tldr"
 	readability "github.com/go-shiori/go-readability"
 )
 
@@ -69,4 +70,17 @@ func ConvertHTMLToMarkDown(body string, pageURL string) (string, error) {
 		return "", pandocFailure
 	}
 	return string(out), nil
+}
+
+func ConvertHTMLToTLDR(body string, pageURL string) (string, error) {
+	log.Println("Processing HTML to TLDR")
+	text, err := ConvertHTMLToReadablePlainText(body, pageURL)
+	if err != nil {
+		return "", err
+	}
+
+	intoSentences := 3
+	bag := tldr.New()
+	result, err := bag.Summarize(text, intoSentences)
+	return strings.Join(result, "\n"), err
 }

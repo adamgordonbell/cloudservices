@@ -73,6 +73,7 @@ func main() {
 	s.HandleFunc("/markdown-mode-raw", app.handlerCreator(textmode.ConvertHTMLToMarkDown, "text/plain; charset=utf-8"))
 
 	s.HandleFunc("/html-mode", app.handlerCreator(textmode.ConvertHTMLToReadableHTML, "text/html; charset=utf-8"))
+	s.HandleFunc("/tldr-mode", app.handlerCreator(textmode.ConvertHTMLToTLDR, "text/html; charset=utf-8"))
 	s.HandleFunc("/", HomeHandler)
 
 	if runtime_api, _ := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); runtime_api != "" {

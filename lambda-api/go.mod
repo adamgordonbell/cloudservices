@@ -3,6 +3,7 @@ module github.com/adamgordonbell/cloudservices/lambda-api
 go 1.17
 
 require (
+	github.com/JesusIslam/tldr v0.6.0
 	github.com/aws/aws-lambda-go v1.31.1
 	github.com/aws/aws-sdk-go v1.44.15
 	github.com/awslabs/aws-lambda-go-api-proxy v0.13.2
@@ -12,6 +13,7 @@ require (
 )
 
 require (
+	github.com/alixaxel/pagerank v0.0.0-20160306110729-14bfb4c1d88c // indirect
 	github.com/andybalholm/cascadia v1.2.0 // indirect
 	github.com/go-shiori/dom v0.0.0-20210627111528-4e4722cd0d65 // indirect
 	github.com/gogs/chardet v0.0.0-20191104214054-4b6791f73a28 // indirect

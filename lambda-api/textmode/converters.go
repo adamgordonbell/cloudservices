@@ -6,8 +6,10 @@ import (
 	"log"
 	nurl "net/url"
 	"os/exec"
+	"regexp"
 	"strings"
 
+	textrank "github.com/DavidBelicza/TextRank"
 	"github.com/JesusIslam/tldr"
 	readability "github.com/go-shiori/go-readability"
 )
@@ -50,7 +52,7 @@ func ConvertHTMLToReadableHTML(body string, pageURL string) (string, error) {
 
 func ConvertHTMLToPlainText(body string, pageURL string) (string, error) {
 	log.Println("Processing HTML to Markdown using lynx")
-	cmd := exec.Command("lynx", "--stdin", "--dump", "--nolist", "--assume_charset=utf8")
+	cmd := exec.Command("lynx", "--stdin", "--dump", "--nolist", "--assume_charset=utf8", "--display_charset=utf-8")
 	cmd.Stdin = strings.NewReader(body)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -74,13 +76,54 @@ func ConvertHTMLToMarkDown(body string, pageURL string) (string, error) {
 
 func ConvertHTMLToTLDR(body string, pageURL string) (string, error) {
 	log.Println("Processing HTML to TLDR")
+	//maybe switch to https://github.com/DavidBelicza/TextRank
 	text, err := ConvertHTMLToReadablePlainText(body, pageURL)
 	if err != nil {
 		return "", err
 	}
-
-	intoSentences := 3
+	space := regexp.MustCompile(`\s+`)
+	text = space.ReplaceAllString(text, " ")
+	intoSentences := 2
 	bag := tldr.New()
 	result, err := bag.Summarize(text, intoSentences)
-	return strings.Join(result, "\n"), err
+	return strings.Join(result, "\n\n"), err
+}
+
+type summary struct {
+	title  string
+	topic  string
+	quotes []string
+}
+
+type section struct {
+	title   string
+	content string
+}
+
+func ConvertSectionToSummary(section section) summary {
+	tr := textrank.NewTextRank()
+	rule := textrank.NewDefaultRule()
+	language := textrank.NewDefaultLanguage()
+	algorithmDef := textrank.NewChainAlgorithm()
+	tr.Populate(section.content, language, rule)
+	tr.Ranking(algorithmDef)
+	rankedPhrases := textrank.FindPhrases(tr)
+
+	quotes := []string{}
+	relationQuote := textrank.FindSentencesByRelationWeight(tr, 3)
+	for _, value := range relationQuote {
+		sentenses := textrank.FindSentencesFrom(tr, value.ID, 3)
+		q := ""
+		for _, s := range sentenses {
+			q += s.Value + " "
+		}
+		quotes = append(quotes, cleanWhitespace(q))
+	}
+
+	println(rankedPhrases)
+	return summary{
+		title:  section.title,
+		topic:  rankedPhrases[0].Right + " " + rankedPhrases[0].Left,
+		quotes: quotes,
+	}
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -73,7 +72,7 @@ func main() {
 	s.HandleFunc("/markdown-mode-raw", app.handlerCreator(textmode.ConvertHTMLToMarkDown, "text/plain; charset=utf-8"))
 
 	s.HandleFunc("/html-mode", app.handlerCreator(textmode.ConvertHTMLToReadableHTML, "text/html; charset=utf-8"))
-	s.HandleFunc("/tldr-mode", app.handlerCreator(textmode.ConvertHTMLToTLDR, "text/html; charset=utf-8"))
+	s.HandleFunc("/tldr-mode", app.handlerCreator(textmode.ConvertHTMLToTLDR, "text/plain; charset=utf-8"))
 	s.HandleFunc("/", HomeHandler)
 
 	if runtime_api, _ := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); runtime_api != "" {
@@ -114,9 +113,9 @@ func (app App) handlerCreator(opp textmode.Conversion, contentType string) func(
 func (app App) RunAndCache(opp textmode.Conversion, url string, path string) (string, error) {
 	key := getCacheKey(url, path)
 	result, err := app.get(key)
-	if errors.Is(err, errNoKey) {
+	if true { //errors.Is(err, errNoKey) {
 		log.Println("No cache value found")
-		body, err := RequestBody(url)
+		body, err := textmode.RequestBody(url)
 		if err != nil {
 			return "", fmt.Errorf("Error getting content: %w", err)
 		}
@@ -132,17 +131,4 @@ func (app App) RunAndCache(opp textmode.Conversion, url string, path string) (st
 		log.Println("Cache hit")
 		return result, nil
 	}
-}
-
-func RequestBody(url string) (string, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	return string(body), nil
 }

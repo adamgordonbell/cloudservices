@@ -1,17 +1,18 @@
 package textmode
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"html/template"
 	"log"
 	nurl "net/url"
 	"os/exec"
-	"regexp"
 	"strings"
 
 	textrank "github.com/DavidBelicza/TextRank"
-	"github.com/JesusIslam/tldr"
 	readability "github.com/go-shiori/go-readability"
+	"github.com/gomarkdown/markdown"
 )
 
 type Conversion func(string, string) (string, error)
@@ -76,36 +77,43 @@ func ConvertHTMLToMarkDown(body string, pageURL string) (string, error) {
 
 func ConvertHTMLToTLDR(body string, pageURL string) (string, error) {
 	log.Println("Processing HTML to TLDR")
-	//maybe switch to https://github.com/DavidBelicza/TextRank
-	text, err := ConvertHTMLToReadablePlainText(body, pageURL)
+	body, err := ConvertHTMLToReadablePlainText(body, pageURL)
 	if err != nil {
 		return "", err
 	}
-	space := regexp.MustCompile(`\s+`)
-	text = space.ReplaceAllString(text, " ")
-	intoSentences := 2
-	bag := tldr.New()
-	result, err := bag.Summarize(text, intoSentences)
-	return strings.Join(result, "\n\n"), err
+	tmpl := template.Must(template.ParseFiles("./textmode/tldr.md"))
+	section := article{title: "", url: pageURL, content: body}
+	summary := ConvertSectionToSummary(section)
+	w := bytes.NewBufferString("")
+	err = tmpl.Execute(w, summary)
+	if err != nil {
+		return "", err
+	}
+	html := markdown.ToHTML(w.Bytes(), nil, nil)
+	return string(html), err
 }
 
 type summary struct {
-	title  string
-	topic  string
-	quotes []string
+	Title   string
+	Author  string
+	URL     string
+	Topic   string
+	Quotes  []string
+	Phrases []string
 }
 
-type section struct {
+type article struct {
 	title   string
+	url     string
 	content string
 }
 
-func ConvertSectionToSummary(section section) summary {
+func ConvertSectionToSummary(article article) summary {
 	tr := textrank.NewTextRank()
 	rule := textrank.NewDefaultRule()
 	language := textrank.NewDefaultLanguage()
 	algorithmDef := textrank.NewChainAlgorithm()
-	tr.Populate(section.content, language, rule)
+	tr.Populate(article.content, language, rule)
 	tr.Ranking(algorithmDef)
 	rankedPhrases := textrank.FindPhrases(tr)
 
@@ -120,10 +128,17 @@ func ConvertSectionToSummary(section section) summary {
 		quotes = append(quotes, cleanWhitespace(q))
 	}
 
-	println(rankedPhrases)
+	phrases := []string{}
+	for _, valeu := range rankedPhrases[:3] {
+		phrases = append(phrases, cleanWhitespace(valeu.Right+" "+valeu.Left))
+	}
+
 	return summary{
-		title:  section.title,
-		topic:  rankedPhrases[0].Right + " " + rankedPhrases[0].Left,
-		quotes: quotes,
+		Title:   article.title,
+		Author:  "Unknown",
+		URL:     article.url,
+		Topic:   rankedPhrases[0].Right + " " + rankedPhrases[0].Left,
+		Quotes:  quotes,
+		Phrases: phrases,
 	}
 }

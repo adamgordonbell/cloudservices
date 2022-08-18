@@ -4,18 +4,17 @@ go 1.17
 
 require (
 	github.com/DavidBelicza/TextRank v2.1.1+incompatible
-	github.com/JesusIslam/tldr v0.6.0
 	github.com/aws/aws-lambda-go v1.31.1
 	github.com/aws/aws-sdk-go v1.44.15
 	github.com/awslabs/aws-lambda-go-api-proxy v0.13.2
 	github.com/go-shiori/go-readability v0.0.0-20220215145315-dd6828d2f09b
+	github.com/gomarkdown/markdown v0.0.0-20220817224203-2206187d3406
 	github.com/gorilla/mux v1.7.4
 	github.com/k0kubun/pp/v3 v3.1.0
 	github.com/motemen/go-loghttp v0.0.0-20170804080138-974ac5ceac27
 )
 
 require (
-	github.com/alixaxel/pagerank v0.0.0-20160306110729-14bfb4c1d88c // indirect
 	github.com/andybalholm/cascadia v1.2.0 // indirect
 	github.com/go-shiori/dom v0.0.0-20210627111528-4e4722cd0d65 // indirect
 	github.com/gogs/chardet v0.0.0-20191104214054-4b6791f73a28 // indirect

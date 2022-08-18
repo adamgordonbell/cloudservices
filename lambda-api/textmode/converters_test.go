@@ -60,9 +60,9 @@ func TestSummary(t *testing.T) {
 		log.Printf("Test: %s", tc.name)
 		content, _ := RequestBody("https://earthly-tools.com/text-mode?url=" + tc.input)
 		// log.Println("Content:", content)
-		section := section{title: "", content: content}
+		section := article{title: "", url: "", content: content}
 		summary := ConvertSectionToSummary(section)
 		pp.Println(summary)
-		t.Errorf("Topic is wrong: %s", summary.topic)
+		t.Errorf("Topic is wrong: %s", summary.Topic)
 	}
 }

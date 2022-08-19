@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	textrank "github.com/DavidBelicza/TextRank"
+	"github.com/adamgordonbell/cloudservices/lambda-api/parse"
 	readability "github.com/go-shiori/go-readability"
 	"github.com/gomarkdown/markdown"
 )
@@ -82,7 +83,7 @@ func ConvertHTMLToTLDR(body string, pageURL string) (string, error) {
 		return "", err
 	}
 	tmpl := template.Must(template.ParseFiles("./textmode/tldr.md"))
-	section := article{title: "", url: pageURL, content: body}
+	section := parse.Article{Title: "", Url: pageURL, Content: body}
 	summary := ConvertSectionToSummary(section)
 	w := bytes.NewBufferString("")
 	err = tmpl.Execute(w, summary)
@@ -102,18 +103,12 @@ type summary struct {
 	Phrases []string
 }
 
-type article struct {
-	title   string
-	url     string
-	content string
-}
-
-func ConvertSectionToSummary(article article) summary {
+func ConvertSectionToSummary(article parse.Article) summary {
 	tr := textrank.NewTextRank()
 	rule := textrank.NewDefaultRule()
 	language := textrank.NewDefaultLanguage()
 	algorithmDef := textrank.NewChainAlgorithm()
-	tr.Populate(article.content, language, rule)
+	tr.Populate(article.Content, language, rule)
 	tr.Ranking(algorithmDef)
 	rankedPhrases := textrank.FindPhrases(tr)
 
@@ -134,9 +129,9 @@ func ConvertSectionToSummary(article article) summary {
 	}
 
 	return summary{
-		Title:   article.title,
+		Title:   article.Title,
 		Author:  "Unknown",
-		URL:     article.url,
+		URL:     article.Url,
 		Topic:   rankedPhrases[0].Right + " " + rankedPhrases[0].Left,
 		Quotes:  quotes,
 		Phrases: phrases,

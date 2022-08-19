@@ -1,4 +1,5 @@
-# Summary of {{.Title}}</h1>
+<!-- markdownlint-disable -->
+# Summary of {{.Title}}
 
 Here is the gist of an [article]({{.URL}}) by `{{.Author}}` about {{.Topic}}:
 

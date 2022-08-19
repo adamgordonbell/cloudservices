@@ -1,3 +1,4 @@
+<!-- markdownlint-disable -->
 ## Goal
 
 Quote articles in a meaningful way. 

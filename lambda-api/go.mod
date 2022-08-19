@@ -16,12 +16,17 @@ require (
 
 require (
 	github.com/andybalholm/cascadia v1.2.0 // indirect
+	github.com/go-akka/configuration v0.0.0-20200606091224-a002c0330665 // indirect
 	github.com/go-shiori/dom v0.0.0-20210627111528-4e4722cd0d65 // indirect
+	github.com/gogap/config v0.0.0-20190801085516-e664631840ac // indirect
+	github.com/gogap/go-pandoc v0.0.0-20200716062510-7550ed141704 // indirect
 	github.com/gogs/chardet v0.0.0-20191104214054-4b6791f73a28 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/motemen/go-nuts v0.0.0-20210915132349-615a782f2c69 // indirect
+	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect

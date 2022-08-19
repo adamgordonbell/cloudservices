@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -12,6 +11,7 @@ import (
 	"os"
 
 	"github.com/adamgordonbell/cloudservices/lambda-api/textmode"
+	"github.com/adamgordonbell/cloudservices/lambda-api/util"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/gorillamux"
@@ -74,6 +74,7 @@ func main() {
 
 	s.HandleFunc("/html-mode", app.handlerCreator(textmode.ConvertHTMLToReadableHTML, "text/html; charset=utf-8"))
 	s.HandleFunc("/tldr-mode", app.handlerCreator(textmode.ConvertHTMLToTLDR, "text/html; charset=utf-8"))
+	s.HandleFunc("/essay-mode", app.handlerCreator(textmode.ConvertHTMLToEssayMarkDown, "text/plain; charset=utf-8"))
 	s.HandleFunc("/", HomeHandler)
 
 	if runtime_api, _ := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); runtime_api != "" {
@@ -114,9 +115,9 @@ func (app App) handlerCreator(opp textmode.Conversion, contentType string) func(
 func (app App) RunAndCache(opp textmode.Conversion, url string, path string) (string, error) {
 	key := getCacheKey(url, path)
 	result, err := app.get(key)
-	if errors.Is(err, errNoKey) {
+	if true { //errors.Is(err, errNoKey) {
 		log.Println("No cache value found")
-		body, err := textmode.RequestBody(url)
+		body, err := util.RequestBody(url)
 		if err != nil {
 			return "", fmt.Errorf("Error getting content: %w", err)
 		}

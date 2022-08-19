@@ -1,4 +1,4 @@
-package textmode
+package util
 
 import (
 	"io/ioutil"
@@ -20,7 +20,14 @@ func RequestBody(url string) (string, error) {
 	return string(body), nil
 }
 
-func cleanWhitespace(s string) string {
+func CleanWhitespace(s string) string {
 	space := regexp.MustCompile(`\s+`)
 	return strings.TrimSpace(space.ReplaceAllString(s, " "))
+}
+
+func CleanNewLines(s string) string {
+	newlines := regexp.MustCompile(`\n\n+`)
+	s2 := newlines.ReplaceAllString(s, "{{{BREAK}}}")
+	s3 := strings.ReplaceAll(s2, "\n", " ")
+	return strings.ReplaceAll(s3, "{{{BREAK}}}", "\n\n")
 }

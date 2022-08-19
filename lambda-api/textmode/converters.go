@@ -11,7 +11,9 @@ import (
 	"strings"
 
 	textrank "github.com/DavidBelicza/TextRank"
+	"github.com/adamgordonbell/cloudservices/lambda-api/blackerfriday"
 	"github.com/adamgordonbell/cloudservices/lambda-api/parse"
+	"github.com/adamgordonbell/cloudservices/lambda-api/util"
 	readability "github.com/go-shiori/go-readability"
 	"github.com/gomarkdown/markdown"
 )
@@ -28,6 +30,14 @@ func ConvertHTMLToReadablePlainText(body string, pageURL string) (string, error)
 		return "", err
 	}
 	return ConvertHTMLToPlainText(body, pageURL)
+}
+
+func ConvertHTMLToEssayMarkDown(body string, pageURL string) (string, error) {
+	body, err := ConvertHTMLToReadableMarkDown(body, pageURL)
+	if err != nil {
+		return "", err
+	}
+	return blackerfriday.ToEssayMarkdown(body), nil
 }
 
 func ConvertHTMLToReadableMarkDown(body string, pageURL string) (string, error) {
@@ -53,7 +63,7 @@ func ConvertHTMLToReadableHTML(body string, pageURL string) (string, error) {
 }
 
 func ConvertHTMLToPlainText(body string, pageURL string) (string, error) {
-	log.Println("Processing HTML to Markdown using lynx")
+	log.Println("Processing HTML to PlainText using lynx")
 	cmd := exec.Command("lynx", "--stdin", "--dump", "--nolist", "--assume_charset=utf8", "--display_charset=utf-8")
 	cmd.Stdin = strings.NewReader(body)
 	out, err := cmd.CombinedOutput()
@@ -65,7 +75,7 @@ func ConvertHTMLToPlainText(body string, pageURL string) (string, error) {
 }
 
 func ConvertHTMLToMarkDown(body string, pageURL string) (string, error) {
-	log.Println("Processing HTML to Markdown using lynx")
+	log.Println("Processing HTML to Markdown using pandoc")
 	cmd := exec.Command("pandoc", "-s", "--from=html", "--to=markdown_strict-raw_html-native_divs-native_spans-fenced_divs-bracketed_spans")
 	cmd.Stdin = strings.NewReader(body)
 	out, err := cmd.CombinedOutput()
@@ -78,7 +88,7 @@ func ConvertHTMLToMarkDown(body string, pageURL string) (string, error) {
 
 func ConvertHTMLToTLDR(body string, pageURL string) (string, error) {
 	log.Println("Processing HTML to TLDR")
-	body, err := ConvertHTMLToReadablePlainText(body, pageURL)
+	body, err := ConvertHTMLToEssayMarkDown(body, pageURL)
 	if err != nil {
 		return "", err
 	}
@@ -120,12 +130,12 @@ func ConvertSectionToSummary(article parse.Article) summary {
 		for _, s := range sentenses {
 			q += s.Value + " "
 		}
-		quotes = append(quotes, cleanWhitespace(q))
+		quotes = append(quotes, util.CleanWhitespace(q))
 	}
 
 	phrases := []string{}
 	for _, valeu := range rankedPhrases[:3] {
-		phrases = append(phrases, cleanWhitespace(valeu.Right+" "+valeu.Left))
+		phrases = append(phrases, util.CleanWhitespace(valeu.Right+" "+valeu.Left))
 	}
 
 	return summary{

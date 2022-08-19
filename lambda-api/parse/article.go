@@ -1,9 +1,5 @@
 package parse
 
-import (
-	"github.com/gogap/go-pandoc/pandoc"
-)
-
 type Article struct {
 	Title   string
 	Url     string
@@ -13,9 +9,6 @@ type Article struct {
 
 func NewArticle(title string, url string, content string) *Article {
 
-	pdoc, err := pandoc.New(conf)
-	convData, err := pdoc.Convert(fetcherOpts, convertOpts)
-	
 	return &Article{
 		Title:   title,
 		Url:     url,

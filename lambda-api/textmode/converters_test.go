@@ -6,6 +6,7 @@ import (
 
 	textrank "github.com/DavidBelicza/TextRank"
 	"github.com/adamgordonbell/cloudservices/lambda-api/parse"
+	"github.com/adamgordonbell/cloudservices/lambda-api/util"
 	"github.com/k0kubun/pp/v3"
 )
 
@@ -59,11 +60,13 @@ func TestSummary(t *testing.T) {
 	log.Println("Testing")
 	for _, tc := range tests {
 		log.Printf("Test: %s", tc.name)
-		content, _ := RequestBody("https://earthly-tools.com/text-mode?url=" + tc.input)
+		content, _ := util.RequestBody("https://earthly-tools.com/text-mode?url=" + tc.input)
 		// log.Println("Content:", content)
 		section := parse.Article{Title: "", Url: "", Content: content}
 		summary := ConvertSectionToSummary(section)
-		pp.Println(summary)
-		t.Errorf("Topic is wrong: %s", summary.Topic)
+		if summary.Quotes[0] != tc.want {
+			pp.Println(summary)
+			t.Errorf("Topic is wrong: %s is not %s", summary.Quotes[0], tc.want)
+		}
 	}
 }

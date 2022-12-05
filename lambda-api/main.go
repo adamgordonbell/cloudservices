@@ -60,7 +60,7 @@ func (s *State) logRawRequestAndProxy(ctx context.Context, event events.APIGatew
 func main() {
 	r := mux.NewRouter()
 	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Not found", r.RequestURI)
+		log.Println("Not found!", r.RequestURI)
 		http.Error(w, fmt.Sprintf("Not found: %s", r.RequestURI), http.StatusNotFound)
 	})
 

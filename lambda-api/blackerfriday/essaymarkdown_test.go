@@ -49,17 +49,17 @@ func TestPrefixHeaderNoExtensions(t *testing.T) {
 		"# Heading\nText Text Text\n",
 		"# Heading\nText Text Text\n",
 
-		"# Heading\n* list\n",
-		"# Heading\n",
+		// "# Heading\n* list\n",
+		// "# Heading\n",
 
-		`* list\n\n* list\nxyz adfasdf asdfs\n`,
-		"",
+		// `* list\n\n* list\nxyz adfasdf asdfs\n`,
+		// "",
 
-		"bla bla bla\nbla blabla\n",
-		"bla bla bla\nbla blabla\n",
+		// "bla bla bla\nbla blabla\n",
+		// "bla bla bla\nbla blabla\n",
 
-		"bla bla bla\n\n* l\n",
-		"bla bla bla\n",
+		// "bla bla bla\n\n* l\n",
+		// "bla bla bla\n",
 	}
 	doTestsBlock(t, tests)
 }

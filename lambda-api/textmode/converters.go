@@ -76,11 +76,14 @@ func ConvertHTMLToPlainText(body string, pageURL string) (string, error) {
 
 func ConvertHTMLToMarkDown(body string, pageURL string) (string, error) {
 	log.Println("Processing HTML to Markdown using pandoc")
-	cmd := exec.Command("pandoc", "-s", "--from=html", "--to=markdown_strict-raw_html-native_divs-native_spans-fenced_divs-bracketed_spans")
+	cmd := exec.Command("pandoc", "-s", "--from=html", "--to=markdown_strict-raw_html")
+	//need pandoc 2.0 for this
+	// cmd := exec.Command("pandoc", "-s", "--from=html", "--to=markdown_strict-raw_html-native_divs-native_spans-fenced_divs-bracketed_spans")
 	cmd.Stdin = strings.NewReader(body)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Printf("Error: failed to pandoc %v: %v", pageURL, err)
+		log.Printf("Error: pandoc output: %v", string(out))
 		return "", pandocFailure
 	}
 	return string(out), nil

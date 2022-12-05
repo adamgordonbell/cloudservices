@@ -9,7 +9,7 @@ deps:
 build:
     FROM +deps
     COPY . .
-    RUN go build -o lambda main.go
+    RUN go build -o lambda *.go
     SAVE ARTIFACT /lambda/lambda /lambda
 
 docker:

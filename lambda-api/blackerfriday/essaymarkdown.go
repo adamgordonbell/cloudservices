@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/adamgordonbell/cloudservices/lambda-api/parse"
 	"github.com/adamgordonbell/cloudservices/lambda-api/util"
 	"github.com/russross/blackfriday"
 )
@@ -16,6 +17,7 @@ func ToEssayMarkdown(body string) string {
 }
 
 type EssayMarkdown struct {
+	article parse.Article
 }
 
 // EssayMarkdownRenderer creates and configures a EssayMarkdown object, which
@@ -46,6 +48,7 @@ func (options *EssayMarkdown) BlockHtml(out *bytes.Buffer, text []byte) {
 }
 
 func (options *EssayMarkdown) Header(out *bytes.Buffer, text func() bool, level int, id string) {
+	// options.article.Nodes = append(options.article.Nodes, parse.HeadingNode{content: })
 	marker := out.Len()
 	for i := 0; i < level; i++ {
 		out.WriteString("#")
@@ -137,6 +140,7 @@ func (options *EssayMarkdown) Entity(out *bytes.Buffer, entity []byte) {
 }
 
 func (options *EssayMarkdown) NormalText(out *bytes.Buffer, text []byte) {
+	log.Println("NormalText", string(text))
 	out.Write(text)
 }
 
